@@ -32,13 +32,6 @@ export default function RootLayout({ children }) {
           </svg>
         </div>
 
-        {/* === Header (site-wide) === */}
-        <header className="p-6 text-center">
-          <h1 className="text-4xl font-bold glow-text drop-shadow-md">
-            Bulldog PRA Autopilot
-          </h1>
-        </header>
-
         {/* === Main Content === */}
         <main className="relative z-10 p-4 sm:p-6 lg:p-8">{children}</main>
       </body>
