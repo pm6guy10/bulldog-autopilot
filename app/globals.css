@@ -2,37 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg: #020617;              /* dark navy background */
-  --panel: #0f172a;           /* slightly lighter panel */
-  --border: #334155;          /* slate border */
-  --text-primary: #f1f5f9;    /* main text */
-  --text-secondary: #94a3b8;  /* muted text */
-  --accent: #22d3ee;          /* cyan accent */
-}
-
 html, body {
-  background-color: var(--bg);
-  color: var(--text-primary);
-  font-family: sans-serif;
-  min-height: 100%;
+  @apply bg-bg text-text-primary min-h-screen font-sans;
 }
 
-/* Optional glow text */
+/* Glow text effect */
 .glow-text {
-  text-shadow: 0 0 12px rgba(34, 211, 238, 0.3); /* use numeric rgba */
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.3); /* matches accent */
 }
 
 /* Primary button */
 .btn-primary {
-  background-color: var(--accent);
-  color: var(--bg);
+  @apply bg-accent text-bg rounded-lg px-4 py-2 font-medium;
   box-shadow: 0 4px 14px 0 rgba(0, 229, 255, 0.38);
   transition: all 0.2s;
 }
 
 .btn-primary:hover {
-  background-color: #4fddf8;
+  background-color: #4fddf8; /* lighter cyan */
   transform: translateY(-2px);
   box-shadow: 0 6px 20px 0 rgba(0, 229, 255, 0.38);
 }
