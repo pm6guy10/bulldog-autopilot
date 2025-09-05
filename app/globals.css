@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === Base Layout === */
+/* === Base Layout + Mobile Fix === */
 html, body, #__next, main {
   height: 100%;        /* stretch to full viewport */
   min-height: 100vh;   /* cover viewport */
@@ -11,12 +11,20 @@ html, body, #__next, main {
   font-family: sans-serif;
 
   /* Dark gradient background */
+  background-color: #0a0a0f; /* fallback */
   background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
 
   color: #e5e7eb;
+
+  /* extend into safe areas */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+body {
+  min-height: -webkit-fill-available; /* iOS + Chrome mobile hack */
 }
 
 /* === Subtle Grid Overlay === */
