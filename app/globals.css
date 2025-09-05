@@ -9,6 +9,7 @@ html, body {
 
   /* Dark gradient background */
   background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
+  background-attachment: fixed;
   color: #e5e7eb; /* soft light gray */
   margin: 0;
   padding: 0;
@@ -71,10 +72,4 @@ button:hover, .btn-primary:hover {
 .recharts-text,
 .recharts-cartesian-axis-tick-value {
   fill: #e5e7eb !important; /* light gray */
-}
-
-/* === Proof of Life Test === */
-h1 {
-  color: yellow !important;
-  border: 3px dashed magenta !important;
 }
