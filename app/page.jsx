@@ -1,8 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BrainCircuit, ChevronRight, Loader2 } from "lucide-react";
-import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
+import { ChevronRight, Loader2, Brain } from "lucide-react";
+import {
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  ResponsiveContainer,
+} from "recharts";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -11,16 +17,23 @@ const supabase = createClient(
 );
 
 function StatusPill({ connected }) {
-  const style = connected
+  const colorClass = connected
     ? "bg-green-500/10 text-green-400"
     : "bg-red-500/10 text-red-400";
-  const dot = connected ? "bg-green-500" : "bg-red-500";
+  const dotClass = connected ? "bg-green-500" : "bg-red-500";
+
   return (
-    <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium ${style}`}>
-      <span className={`h-2 w-2 rounded-full ${dot}`} />
+    <div
+      className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium ${colorClass}`}
+    >
+      <span className={`h-2 w-2 rounded-full ${dotClass}`} />
       {connected ? "Supabase Connected" : "Connection Failed"}
     </div>
   );
+}
+
+function renderAndOpenPleading(draft) {
+  console.log("Pleading rendered:", draft);
 }
 
 const MatterSelectionScreen = ({ matters, onSelect, connected }) => (
@@ -35,25 +48,38 @@ const MatterSelectionScreen = ({ matters, onSelect, connected }) => (
       </motion.h1>
       <StatusPill connected={connected} />
     </header>
+
     <main className="space-y-4">
       <h2 className="text-2xl font-semibold text-[var(--text-secondary)]">
         Select a Matter
       </h2>
-      <div className="space-y-3">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: { transition: { staggerChildren: 0.07 } },
+        }}
+      >
         {(matters || []).map((m) => (
           <motion.div
             key={m.id}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
             onClick={() => onSelect(m)}
-            className="panel cursor-pointer transition-all hover:border-[var(--accent)] hover:bg-slate-800"
-            whileHover={{ scale: 1.02 }}
+            className="bg-[var(--panel)] p-4 rounded-lg border border-[var(--border)] flex items-center justify-between cursor-pointer transition-all hover:border-[var(--accent)] hover:bg-slate-800"
           >
-            <p className="font-bold text-lg text-white">{m.name}</p>
-            <p className="text-sm text-[var(--text-secondary)]">
-              {m.client_name || "Unknown"} — {m.case_number || "No Case #"}
-            </p>
+            <div>
+              <p className="font-bold text-lg">{m.name}</p>
+              <p className="text-sm text-[var(--text-secondary)]">
+                {m.case_number || "No case number"}
+              </p>
+            </div>
+            <ChevronRight className="text-[var(--text-secondary)]" />
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     </main>
   </div>
 );
@@ -70,10 +96,10 @@ const MatterDashboard = ({ matter, summary, onBack, onDraft, isDrafting }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <header>
+      <header className="space-y-4">
         <button
           onClick={onBack}
-          className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors mb-4"
+          className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
         >
           ← Back to All Matters
         </button>
@@ -81,86 +107,65 @@ const MatterDashboard = ({ matter, summary, onBack, onDraft, isDrafting }) => {
       </header>
 
       <main className="grid md:grid-cols-2 gap-6">
-        {/* Total Violations */}
-        <div className="panel text-center md:col-span-2">
-          <h3 className="font-semibold text-[var(--text-secondary)]">
-            Total Violations Logged
-          </h3>
-          <p className="text-6xl font-bold text-white mt-2">
-            {summary.total ?? <Loader2 className="animate-spin inline" />}
-          </p>
-        </div>
-
-        {/* Case Metrics */}
-        <div className="panel">
-          <h3 className="font-semibold text-[var(--text-secondary)] mb-4">
-            Live Case Metrics
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span>High-Risk Violations:</span>
-              <span className="font-bold">
-                {summary.factors?.high_risk_count ?? "-"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Constructive Denials:</span>
-              <span className="font-bold">
-                {summary.factors?.denial_count ?? "-"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Privilege Log Failures:</span>
-              <span className="font-bold">
-                {summary.factors?.privilege_log_failures ?? "-"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Average Delay (Days):</span>
-              <span className="font-bold">
-                {summary.factors?.avg_delay ?? "-"}
-              </span>
-            </div>
+        <div className="space-y-6">
+          <div className="bg-[var(--panel)] p-6 rounded-lg border border-[var(--border)] text-center">
+            <h3 className="font-semibold text-[var(--text-secondary)]">
+              Total Violations
+            </h3>
+            <p className="text-6xl font-bold mt-2">{summary.total}</p>
+          </div>
+          <div className="bg-[var(--panel)] p-6 rounded-lg border border-[var(--border)] text-center">
+            <h3 className="font-semibold text-[var(--text-secondary)]">
+              Constructive Denials
+            </h3>
+            <p className="text-6xl font-bold mt-2">
+              {summary.factors?.denial_count || 0}
+            </p>
           </div>
         </div>
 
-        {/* Radar Chart */}
-        <div className="panel">
-          <h3 className="font-semibold text-[var(--text-secondary)] mb-4">
-            Yousoufian Score
-          </h3>
-          <ResponsiveContainer width="100%" height={220}>
-            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-              <PolarGrid stroke="var(--border)" />
-              <PolarAngleAxis
-                dataKey="subject"
-                tick={{ fill: "var(--text-secondary)", fontSize: 12 }}
-              />
-              <Radar
-                name="Score"
-                dataKey="A"
-                stroke="var(--accent)"
-                fill="var(--accent-2)"
-                fillOpacity={0.5}
-              />
-            </RadarChart>
-          </ResponsiveContainer>
-        </div>
+        <div className="space-y-6">
+          <div className="bg-[var(--panel)] p-6 rounded-lg border border-[var(--border)]">
+            <h3 className="font-semibold text-[var(--text-secondary)] mb-2 text-center">
+              ⚖️ Yousoufian Factor Score
+            </h3>
+            <ResponsiveContainer width="100%" height={220}>
+              <RadarChart data={radarData}>
+                <PolarGrid stroke="var(--border)" />
+                <PolarAngleAxis
+                  dataKey="subject"
+                  stroke="var(--accent)"
+                  fontSize={12}
+                />
+                <Radar
+                  name="Score"
+                  dataKey="A"
+                  stroke="var(--accent)"
+                  fill="var(--accent)"
+                  fillOpacity={0.3}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* Draft Motion Button */}
-        <div className="md:col-span-2 flex justify-center mt-4">
+          {/* 🚀 Pink Glowing Brain Button */}
           <button
             onClick={onDraft}
+            className="w-full btn-primary font-bold py-4 px-6 rounded-lg text-lg flex items-center justify-center gap-3"
             disabled={isDrafting}
-            className="btn-primary w-full max-w-sm flex items-center justify-center gap-2"
           >
             {isDrafting ? (
               <>
-                <Loader2 size={18} className="animate-spin" /> Drafting...
+                <Loader2
+                  size={20}
+                  className="animate-spin text-pink-400 drop-shadow-glow"
+                />
+                Drafting...
               </>
             ) : (
               <>
-                <BrainCircuit size={18} /> Ask AI Partner to Draft Motion
+                <Brain size={24} className="text-pink-400 drop-shadow-glow" />
+                Ask AI Partner to Draft Motion
               </>
             )}
           </button>
@@ -172,20 +177,20 @@ const MatterDashboard = ({ matter, summary, onBack, onDraft, isDrafting }) => {
 
 export default function Page() {
   const [matters, setMatters] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const [selectedMatter, setSelectedMatter] = useState(null);
   const [summary, setSummary] = useState({ total: 0, factors: null });
   const [isDrafting, setIsDrafting] = useState(false);
-  const [connected, setConnected] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     async function fetchMatters() {
       try {
-        const { data, error } = await supabase.from("matters").select("*");
-        if (error) throw error;
-        setMatters(data);
+        const res = await fetch("/api/matters");
+        if (!res.ok) throw new Error("Failed");
+        setMatters(await res.json());
         setConnected(true);
-      } catch (e) {
+      } catch (err) {
         setConnected(false);
       } finally {
         setLoading(false);
@@ -195,57 +200,50 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    if (!selected) return;
-    setSummary({ total: null, factors: null });
+    if (!selectedMatter) return;
     async function fetchSummary() {
       try {
-        const res = await fetch(`/api/violations/summary?matter_id=${selected.id}`);
-        if (!res.ok) throw new Error("Failed to fetch summary");
+        const res = await fetch(
+          `/api/violations/summary?matter_id=${selectedMatter.id}`
+        );
+        if (!res.ok) throw new Error("Failed");
         setSummary(await res.json());
-      } catch {
-        setSummary({ total: "Error", factors: null });
+      } catch (err) {
+        console.error("Error loading summary", selectedMatter.name);
       }
     }
     fetchSummary();
-  }, [selected]);
+  }, [selectedMatter]);
 
   const handleDraft = async () => {
-    if (!selected) return;
+    if (!selectedMatter) return alert("Select a matter first");
     setIsDrafting(true);
     try {
       const res = await fetch("/api/draft/motion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matter_id: selected.id }),
+        body: JSON.stringify({ matter_id: selectedMatter.id }),
       });
-      if (!res.ok) throw new Error("Drafting failed");
-      const { draft } = await res.json();
-      const blob = new Blob([draft], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${selected.name}_Motion_Draft.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      alert(`Drafting Failed: ${e.message}`);
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Drafting failed");
+      }
+      renderAndOpenPleading((await res.json()).draft);
+    } catch (err) {
+      alert(`Drafting Failed: ${err.message}`);
     } finally {
       setIsDrafting(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin h-8 w-8 text-[var(--accent)]" />
-      </div>
-    );
-  }
-
-  return (
+  return loading ? (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="animate-spin h-8 w-8 text-[var(--accent)]" />
+    </div>
+  ) : (
     <div className="min-h-screen p-4 sm:p-8 font-sans">
       <AnimatePresence mode="wait">
-        {selected ? (
+        {selectedMatter ? (
           <motion.div
             key="dashboard"
             initial={{ opacity: 0 }}
@@ -253,9 +251,9 @@ export default function Page() {
             exit={{ opacity: 0 }}
           >
             <MatterDashboard
-              matter={selected}
+              matter={selectedMatter}
               summary={summary}
-              onBack={() => setSelected(null)}
+              onBack={() => setSelectedMatter(null)}
               onDraft={handleDraft}
               isDrafting={isDrafting}
             />
@@ -269,7 +267,7 @@ export default function Page() {
           >
             <MatterSelectionScreen
               matters={matters}
-              onSelect={setSelected}
+              onSelect={setSelectedMatter}
               connected={connected}
             />
           </motion.div>
