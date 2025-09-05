@@ -3,25 +3,36 @@
 @tailwind utilities;
 
 :root {
-  --bg: #020617;
-  --panel: #0f172a;
-  --border: #334155;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --accent: #22d3ee;
+  --bg: #020617;              /* dark navy background */
+  --panel: #0f172a;           /* slightly lighter panel */
+  --border: #334155;          /* slate border */
+  --text-primary: #f1f5f9;    /* main text */
+  --text-secondary: #94a3b8;  /* muted text */
+  --accent: #22d3ee;          /* cyan accent */
 }
-html, body {
-  background-color: rgb(var(--bg));
-  color: rgb(var(--text-primary));
-  font-family: sans-serif;
-}
-.glow-text { text-shadow: 0 0 12px rgba(var(--accent), .3); }
-.btn-primary { background-color: rgb(var(--accent)); color: rgb(var(--bg)); box-shadow: 0 4px 14px 0 rgba(0, 229, 255, 38%); transition: all 0.2s; }
-.btn-primary:hover { background-color: #4fddf8; transform: translateY(-2px); box-shadow: 0 6px 20px 0 rgba(0, 229, 255, 38%); }
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-body {
-  @apply bg-gray-900 text-gray-100 min-h-screen;
+html, body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: sans-serif;
+  min-height: 100%;
+}
+
+/* Optional glow text */
+.glow-text {
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.3); /* use numeric rgba */
+}
+
+/* Primary button */
+.btn-primary {
+  background-color: var(--accent);
+  color: var(--bg);
+  box-shadow: 0 4px 14px 0 rgba(0, 229, 255, 0.38);
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #4fddf8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(0, 229, 255, 0.38);
 }
