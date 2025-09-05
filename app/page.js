@@ -1,20 +1,77 @@
-export default function HomePage() {
+// File: app/matters/yakima/page.js
+
+"use client";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
+
+// This is sample data for the chart.
+const data = [
+  { subject: 'Culpability', A: 100, fullMark: 150 },
+  { subject: 'Clarity', A: 85, fullMark: 150 },
+  { subject: 'Deterrence', A: 90, fullMark: 150 },
+  { subject: 'Delay', A: 40, fullMark: 150 },
+];
+
+export default function YakimaPage() {
   return (
-    // 1. REMOVED the redundant "bg-gradient-to-br from-[#0a0a0f]..." classes.
-    // 2. ADDED padding for the bottom safe area: pb-[env(safe-area-inset-bottom)]
-    <main className="min-h-screen text-gray-200 p-6 pb-[env(safe-area-inset-bottom)]">
-      <h1 className="glow-text text-3xl font-bold mb-6">Bulldog PRA Autopilot</h1>
+    // Added bottom padding to respect the safe area on mobile
+    <main className="min-h-screen p-6 pb-[env(safe-area-inset-bottom)]">
+      <h1 className="glow-text text-3xl font-bold mb-6 text-center">
+        Yakima PRA Litigation
+      </h1>
 
-      <div className="bg-[#0f172a] border border-[#334155] rounded-xl p-4">
-        <p className="text-lg font-semibold mb-2">Select a Matter</p>
+      {/* --- Card 1: Total Violations Logged --- */}
+      {/* CHANGED: The className is now "card-enhanced" */}
+      <div className="card-enhanced text-center mb-6">
+        <p className="text-lg text-gray-400 mb-2">Total Violations Logged</p>
+        <p className="text-6xl font-bold">10</p>
+      </div>
 
-        <a
-          href="/matters/yakima"
-          className="block p-4 border border-[#334155] rounded-lg hover:border-cyan-400 transition"
-        >
-          <p className="font-bold">Yakima PRA Litigation</p>
-          <p className="text-sm text-gray-400">Brandon Kapp — 25-2-12345-6 SEA</p>
-        </a>
+      {/* --- Card 2: Live Case Metrics --- */}
+      {/* CHANGED: The className is now "card-enhanced" */}
+      <div className="card-enhanced mb-6">
+        <p className="text-lg font-semibold mb-4">Live Case Metrics</p>
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <span>High-Risk Violations:</span>
+            <span className="font-bold">2</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Constructive Denials:</span>
+            <span className="font-bold">4</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Privilege Log Failures:</span>
+            <span className="font-bold">2</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Average Delay (Days):</span>
+            <span className="font-bold">0</span>
+          </div>
+        </div>
+      </div>
+
+      {/* --- Card 3: Yousoufian Score --- */}
+      {/* CHANGED: The className is now "card-enhanced" */}
+      <div className="card-enhanced">
+        <p className="text-lg font-semibold mb-4 text-center">Yousoufian Score</p>
+        <div style={{ width: '100%', height: 300 }}>
+          <ResponsiveContainer>
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
+              <PolarGrid stroke="#334155" />
+              <PolarAngleAxis dataKey="subject" tick={{ fill: '#e5e7eb' }} />
+              <Radar name="Score" dataKey="A" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.6} />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* --- Bottom Button --- */}
+      {/* This div makes sure the button stays at the bottom */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0a0a0f] to-transparent pb-[env(safe-area-inset-bottom)]">
+        {/* CHANGED: The className is now "btn w-full" to get the new hover style */}
+        <button className="btn w-full">
+          Draft Motion
+        </button>
       </div>
     </main>
   );
