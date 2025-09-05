@@ -16,9 +16,12 @@ export default function DraftPage() {
 
   // WIGDOR BRAIN - STEP 1: Fetch real data when the page loads
   useEffect(() => {
+    // This function fetches the summary data from your backend.
+    // In a real app, you would create an API route at '/api/matters/yakima/summary'
+    // that queries your Supabase database. For now, we'll simulate it.
     const fetchMetrics = async () => {
       setPageIsLoading(true);
-      // SIMULATED FETCH: In the future, this will be a real database call
+      // SIMULATED FETCH: Replace this with a real fetch call later
       const simulatedData = {
         highRiskViolations: 2,
         constructiveDenials: 4,
@@ -31,9 +34,9 @@ export default function DraftPage() {
     fetchMetrics();
   }, []);
 
-  // Argument recommender now uses LIVE data
+  // Wigdor Intelligence: Argument recommender now uses LIVE data
   const recommendedArgs = [];
-  if (metrics) {
+  if (metrics) { // Only run this logic if metrics have been loaded
     if (metrics.constructiveDenials > 2) {
       recommendedArgs.push({ id: 'bad_faith', title: 'Argue a Pattern of Bad Faith', description: `Leverage the ${metrics.constructiveDenials} constructive denials to demonstrate a pattern of evasion.` });
     }
@@ -43,8 +46,9 @@ export default function DraftPage() {
     if (metrics.highRiskViolations > 0) {
       recommendedArgs.push({ id: 'in_camera_review', title: 'Demand In Camera Review', description: `The ${metrics.highRiskViolations} high-risk violations necessitate judicial review.` });
     }
+    // The new powerful argument only appears when the problem is severe
     if ((metrics.constructiveDenials + metrics.privilegeLogFailures) > 5) {
-      recommendedArgs.push({ id: 'systemic_failure', title: 'Argue Systemic Failure', description: 'Combine multiple failures to argue this is an agency-wide problem.' });
+      recommendedArgs.push({ id: 'systemic_failure', title: 'Argue Systemic Failure', description: 'Combine multiple failures to argue this is an agency-wide problem, not isolated mistakes.' });
     }
   }
 
@@ -54,6 +58,7 @@ export default function DraftPage() {
 
   const generateDraft = async () => {
     setIsGenerating(true);
+    // Now we send the REAL metrics to the brain
     const response = await fetch('/api/draft', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -65,6 +70,7 @@ export default function DraftPage() {
     setStep(3);
   };
 
+  // Show a loading screen while we fetch the case data
   if (pageIsLoading) {
     return (
       <main className="min-h-screen p-6 flex justify-center items-center">
@@ -76,13 +82,35 @@ export default function DraftPage() {
     );
   }
 
+  // --- The rest of the page is the same, but now it's powered by live data ---
   return (
     <main className="min-h-screen p-6 pb-28 lg:max-w-4xl lg:mx-auto">
       <h1 className="glow-text text-3xl font-bold mb-6 text-center">Smart Draft Assistant</h1>
-      {/* The rest of your multi-step UI JSX goes here... */}
-      {step === 1 && ( <div className="card-enhanced">...</div> )}
-      {step === 2 && ( <div className="card-enhanced">...</div> )}
-      {step === 3 && ( <div className="card-enhanced">...</div> )}
+      
+      {step === 1 && (
+        <div className="card-enhanced">
+          <h2 className="text-xl font-semibold mb-1">Step 1: Select Core Arguments</h2>
+          <p className="text-gray-400 mb-4">The Wigdor engine has analyzed the live data and recommends these key points.</p>
+          <div className="space-y-3">{recommendedArgs.map(arg => (<div key={arg.id} onClick={() => handleToggleArg(arg.id)} className={`p-4 border rounded-lg cursor-pointer transition-all ${selectedArgs.includes(arg.id) ? 'bg-cyan-900 border-cyan-400' : 'border-gray-600 hover:border-gray-400'}`}><p className="font-bold">{arg.title}</p><p className="text-sm text-gray-300">{arg.description}</p></div>))}</div>
+          <button onClick={() => setStep(2)} className="btn w-full mt-6" disabled={selectedArgs.length === 0}>Next: Set Tone</button>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="card-enhanced">
+          <h2 className="text-xl font-semibold mb-4">Step 2: Set the Tone</h2>
+          <div className="space-y-3"><div onClick={() => setTone('professional')} className={`p-4 border rounded-lg cursor-pointer transition-all ${tone === 'professional' ? 'bg-cyan-900 border-cyan-400' : 'border-gray-600 hover:border-gray-400'}`}><p className="font-bold">Firm but Professional</p><p className="text-sm text-gray-300">Clearly outlines failures and requests remedies without overly aggressive language.</p></div><div onClick={() => setTone('aggressive')} className={`p-4 border rounded-lg cursor-pointer transition-all ${tone === 'aggressive' ? 'bg-cyan-900 border-cyan-400' : 'border-gray-600 hover:border-gray-400'}`}><p className="font-bold">Aggressively Seek Sanctions</p><p className="text-sm text-gray-300">Uses forceful language to assert bad faith and explicitly demand monetary sanctions.</p></div></div>
+          <div className="flex gap-4 mt-6"><button onClick={() => setStep(1)} className="btn-secondary w-full">Back</button><button onClick={generateDraft} className="btn w-full" disabled={isGenerating}>{isGenerating ? 'Generating...' : 'Generate Draft'}</button></div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="card-enhanced">
+          <h2 className="text-xl font-semibold mb-4">Step 3: Your Generated Draft</h2>
+          <textarea readOnly value={draft} className="w-full h-96 p-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-200 font-mono text-sm"></textarea>
+          <div className="flex gap-4 mt-6"><button onClick={() => setStep(2)} className="btn-secondary w-full">Back & Refine</button><button onClick={() => navigator.clipboard.writeText(draft)} className="btn w-full">Copy to Clipboard</button></div>
+        </div>
+      )}
     </main>
   );
 }
