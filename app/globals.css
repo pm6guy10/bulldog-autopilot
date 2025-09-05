@@ -4,9 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  /* This forces the root of the page to have the correct dark background */
+  background-color: #0a0a0f;
+}
+
 body {
-  /* This is the only place the background should be set */
-  background-color: #0a0a0f; /* fallback */
+  /* Set a gradient on the body that will show through */
   background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
   background-attachment: fixed;
   background-repeat: no-repeat;
@@ -31,34 +35,4 @@ body::before {
   pointer-events: none;
 }
 
-/* Keep your other custom styles like .card, .btn, .glow-text etc. below */```
-
-#### **3. `HomePage.js` (With Padding and NO Background)**
-
-This is the most critical change. The background on `<main>` is removed, and the special bottom padding is added.
-
-```jsx
-// File: HomePage.js
-
-export default function HomePage() {
-  return (
-    // REMOVED: bg-gradient... classes
-    // ADDED: pb-[env(safe-area-inset-bottom)]
-    <main className="min-h-screen text-gray-200 p-6 pb-[env(safe-area-inset-bottom)]">
-      
-      <h1 className="glow-text text-3xl font-bold mb-6">Bulldog PRA Autopilot</h1>
-
-      <div className="bg-[#0f172a] border border-[#334155] rounded-xl p-4">
-        <p className="text-lg font-semibold mb-2">Select a Matter</p>
-
-        <a
-          href="/matters/yakima"
-          className="block p-4 border border-[#334155] rounded-lg hover:border-cyan-400 transition"
-        >
-          <p className="font-bold">Yakima PRA Litigation</p>
-          <p className="text-sm text-gray-400">Brandon Kapp — 25-2-12345-6 SEA</p>
-        </a>
-      </div>
-    </main>
-  );
-}
+/* Your custom styles like .card, .btn, etc. can go here */
