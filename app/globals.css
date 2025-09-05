@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,14 +10,20 @@
   --border: #334155;
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
-  --accent: #22d3ee;
-  --accent-2: #14b8a6; /* mint/teal */
+  --accent: #22d3ee; /* cyan */
+  --accent-2: #14b8a6; /* teal */
 }
 
 html, body {
-  background-color: var(--bg);
-  color: var(--text-primary);
+  background-color: rgb(var(--bg));
+  color: rgb(var(--text-primary));
   font-family: 'Inter', sans-serif;
+  overflow-x: hidden; /* Fixes potential horizontal scrollbar issues */
+}
+
+/* Base class for all cards/panels */
+.panel {
+  @apply bg-[var(--panel)] p-4 rounded-lg border border-[var(--border)];
 }
 
 /* Glow title */
@@ -23,13 +31,11 @@ html, body {
   text-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
 }
 
-/* Primary button (blue-neon) */
+/* Primary button (gradient) */
 .btn-primary {
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  color: var(--bg);
-  border-radius: 9999px;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  @apply px-6 py-3 rounded-full font-semibold transition-all duration-200 ease-in-out;
+  background: linear-gradient(90deg, rgb(var(--accent)), rgb(var(--accent-2)));
+  color: rgb(var(--bg));
   box-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
 }
 
@@ -37,24 +43,4 @@ html, body {
   opacity: 0.9;
   transform: translateY(-2px);
   box-shadow: 0 0 18px rgba(20, 184, 166, 0.8);
-}
-
-/* Secondary button (dark outline) */
-.btn-secondary {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  border-radius: 9999px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* Fix bottom white scroll bar issue */
-body {
-  overflow-x: hidden;
 }
