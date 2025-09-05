@@ -2,74 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global Theme */
+/* === Root Theme Variables === */
 :root {
-  --bg: #0b1120;          /* Deep cobalt navy */
-  --panel: #111827;       /* Dark slate panel */
-  --border: #1f2937;      /* Soft border */
-  --text-primary: #e0f2fe; /* Light cyan text */
-  --text-secondary: #94a3b8; /* Muted slate text */
-  --accent: #22d3ee;      /* Bright cyan */
-  --highlight: #34d399;   /* Mint/teal accent */
+  --bg: 2, 6, 23;            /* deep navy */
+  --panel: 15, 23, 42;       /* slate panel */
+  --border: 51, 65, 85;      /* muted border */
+  --text-primary: 241, 245, 249;   /* white */
+  --text-secondary: 148, 163, 184; /* gray */
+  --accent: 34, 211, 238;    /* cyan neon */
+  --accent2: 20, 184, 166;   /* teal/mint neon */
 }
 
-/* Base styles */
 html, body {
-  background: linear-gradient(180deg, #0b1120 0%, #111827 100%);
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
+  background-color: rgb(var(--bg));
+  color: rgb(var(--text-primary));
+  font-family: sans-serif;
 }
 
-/* Typography */
-h1, h2, h3, h4 {
-  letter-spacing: -0.02em;
-  font-weight: 700;
-}
-
-/* Glowing text */
+/* === Typography Glow === */
 .glow-text {
-  color: var(--accent);
-  text-shadow: 0 0 8px rgba(34, 211, 238, 0.6),
-               0 0 20px rgba(34, 211, 238, 0.3);
+  text-shadow: 0 0 18px rgba(var(--accent), 0.5);
+  color: rgb(var(--accent));
 }
 
-/* Buttons */
-.btn-primary {
-  background: linear-gradient(90deg, var(--accent), var(--highlight));
-  color: #0b1120;
-  font-weight: bold;
-  padding: 0.75rem 1.5rem;
-  border-radius: 9999px; /* pill/oval */
-  box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
-  transition: all 0.25s ease-in-out;
-}
-.btn-primary:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 0 25px rgba(34, 211, 238, 0.6),
-              0 0 40px rgba(52, 211, 153, 0.4);
-}
-
-.btn-secondary {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  padding: 0.5rem 1rem;
-  transition: all 0.2s;
-}
-.btn-secondary:hover {
-  background: #1e293b;
-  border-color: var(--accent);
-}
-
-/* Cards / Panels */
+/* === Panels === */
 .panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
+  background-color: rgb(var(--panel));
+  border: 1px solid rgb(var(--border));
   border-radius: 1rem;
   padding: 1.5rem;
-  transition: all 0.25s ease-in-out;
 }
-.panel:hover {
-  border-color: var(--accent);
-  box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+
+/* === Neon Buttons === */
+.btn-primary {
+  background: linear-gradient(90deg, rgb(var(--accent)) 0%, rgb(var(--accent2)) 100%);
+  color: rgb(var(--bg));
+  font-weight: bold;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 0 18px rgba(var(--accent), 0.4);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 24px rgba(var(--accent2), 0.6);
+}
+
+/* Secondary style (muted button) */
+.btn-secondary {
+  background-color: rgb(var(--panel));
+  border: 1px solid rgb(var(--border));
+  color: rgb(var(--text-secondary));
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  transition: all 0.25s;
+}
+.btn-secondary:hover {
+  background-color: rgb(30, 41, 59);
+  color: white;
+  border-color: rgb(71, 85, 105);
 }
