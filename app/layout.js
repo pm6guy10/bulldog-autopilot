@@ -11,11 +11,14 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} relative min-h-screen`}>
-        {/* === Background Glow / Fractal Layer === */}
-        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]">
-          {/* Subtle fractal-like patterns */}
+    <html lang="en" className={inter.className}>
+      <body className="relative min-h-screen">
+        {/* === Background Gradient & Fractal === */}
+        <div className="fixed inset-0 -z-10">
+          {/* Gradient base (let Tailwind handle it) */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]" />
+
+          {/* Subtle fractal overlay */}
           <svg
             className="absolute inset-0 w-full h-full opacity-20"
             xmlns="http://www.w3.org/2000/svg"
