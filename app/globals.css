@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,37 +8,13 @@
   --border: #334155;
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
-  --accent: #22d3ee; /* cyan */
-  --accent-2: #14b8a6; /* teal */
+  --accent: #22d3ee;
 }
-
 html, body {
   background-color: rgb(var(--bg));
   color: rgb(var(--text-primary));
-  font-family: 'Inter', sans-serif;
-  overflow-x: hidden; /* Fixes potential horizontal scrollbar issues */
+  font-family: sans-serif;
 }
-
-/* Base class for all cards/panels */
-.panel {
-  @apply bg-[var(--panel)] p-4 rounded-lg border border-[var(--border)];
-}
-
-/* Glow title */
-.glow-text {
-  text-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
-}
-
-/* Primary button (gradient) */
-.btn-primary {
-  @apply px-6 py-3 rounded-full font-semibold transition-all duration-200 ease-in-out;
-  background: linear-gradient(90deg, rgb(var(--accent)), rgb(var(--accent-2)));
-  color: rgb(var(--bg));
-  box-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-  box-shadow: 0 0 18px rgba(20, 184, 166, 0.8);
-}
+.glow-text { text-shadow: 0 0 12px rgba(var(--accent), .3); }
+.btn-primary { background-color: rgb(var(--accent)); color: rgb(var(--bg)); box-shadow: 0 4px 14px 0 rgba(0, 229, 255, 38%); transition: all 0.2s; }
+.btn-primary:hover { background-color: #4fddf8; transform: translateY(-2px); box-shadow: 0 6px 20px 0 rgba(0, 229, 255, 38%); }
