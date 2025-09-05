@@ -87,19 +87,10 @@ body::before {
 
 /* === Icon Glow (Brain) === */
 .icon-brain {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   stroke: var(--accent);
   stroke-width: 2;
   fill: none;
   filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.9));
-}
-
-/* === Smooth Scroll + Transitions === */
-html {
-  scroll-behavior: smooth;
-}
-
-* {
-  transition: background 0.3s ease, color 0.3s ease;
 }
