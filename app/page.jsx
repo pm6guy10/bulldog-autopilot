@@ -1,4 +1,4 @@
-// File: app/matters/yakima/page.js (or whichever file you found)
+// File: app/matters/yakima/page.js
 
 "use client";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
@@ -13,8 +13,9 @@ const data = [
 
 export default function YakimaPage() {
   return (
-    // Add extra bottom padding to make space for the floating button
+    // This is the main container for the dashboard page
     <main className="min-h-screen p-6 pb-28"> 
+      
       <h1 className="glow-text text-3xl font-bold mb-6 text-center">
         Yakima PRA Litigation
       </h1>
@@ -53,10 +54,8 @@ export default function YakimaPage() {
         <p className="text-lg font-semibold mb-4 text-center">Yousoufian Score</p>
         <div style={{ width: '100%', height: 300 }}>
           <ResponsiveContainer>
-            {/* Chart radius is smaller to give labels space */}
             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
               <PolarGrid stroke="#334155" />
-              {/* Label font size is smaller to prevent overlap */}
               <PolarAngleAxis dataKey="subject" tick={{ fill: '#e5e7eb', fontSize: 12 }} />
               <Radar name="Score" dataKey="A" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.6} />
             </RadarChart>
