@@ -1,32 +1,20 @@
-﻿"use client";
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 text-gray-900 p-8">
-      <div className="max-w-2xl text-center">
-        <h1 className="text-5xl font-extrabold mb-6">
-          🐶 Bulldog Autopilot
-        </h1>
-        <p className="text-lg text-gray-600 mb-8">
-          Your litigation command center is online.  
-          Streamline evidence. Maximize ROI. Crush delays.
-        </p>
+    // 1. REMOVED the redundant "bg-gradient-to-br from-[#0a0a0f]..." classes.
+    // 2. ADDED padding for the bottom safe area: pb-[env(safe-area-inset-bottom)]
+    <main className="min-h-screen text-gray-200 p-6 pb-[env(safe-area-inset-bottom)]">
+      <h1 className="glow-text text-3xl font-bold mb-6">Bulldog PRA Autopilot</h1>
 
-        <div className="flex gap-4 justify-center">
-          <a
-            href="#dashboard"
-            className="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition"
-          >
-            Enter Dashboard
-          </a>
-          <a
-            href="https://nextjs.org/docs"
-            target="_blank"
-            className="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition"
-          >
-            Learn More
-          </a>
-        </div>
+      <div className="bg-[#0f172a] border border-[#334155] rounded-xl p-4">
+        <p className="text-lg font-semibold mb-2">Select a Matter</p>
+
+        <a
+          href="/matters/yakima"
+          className="block p-4 border border-[#334155] rounded-lg hover:border-cyan-400 transition"
+        >
+          <p className="font-bold">Yakima PRA Litigation</p>
+          <p className="text-sm text-gray-400">Brandon Kapp — 25-2-12345-6 SEA</p>
+        </a>
       </div>
     </main>
   );
