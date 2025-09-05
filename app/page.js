@@ -1,21 +1,97 @@
-export default function HomePage() {
-  return (
-    // This is the responsive container for the home page
-    <main className="min-h-screen p-6 pb-[env(safe-area-inset-bottom)] lg:max-w-4xl lg:mx-auto">
-      
-      <h1 className="glow-text text-3xl font-bold mb-6">Bulldog PRA Autopilot</h1>
+// File: app/matters/yakima/draft/page.js
 
-      <div className="card-enhanced">
-        <p className="text-lg font-semibold mb-3">Select a Matter</p>
+"use client";
+import { useState, useEffect } from 'react';
 
-        <a
-          href="/matters/yakima"
-          className="block p-4 border border-[#334155] rounded-lg hover:border-cyan-400 transition-colors"
-        >
-          <p className="font-bold">Yakima PRA Litigation</p>
-          <p className="text-sm text-gray-400">Brandon Kapp — 25-2-12345-6 SEA</p>
-        </a>
-      </div>
-    </main>
-  );
+export default function DraftPage() {
+    const [metrics, setMetrics] = useState(null);
+    const [pageIsLoading, setPageIsLoading] = useState(true);
+    const [step, setStep] = useState(1);
+    const [selectedArgs, setSelectedArgs] = useState([]);
+    const [tone, setTone] = useState('professional');
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    useEffect(() => {
+        const fetchMetrics = async () => {
+            setPageIsLoading(true);
+            const simulatedData = { highRiskViolations: 2, constructiveDenials: 4, privilegeLogFailures: 2, averageDelay: 0 };
+            setMetrics(simulatedData);
+            setPageIsLoading(false);
+        };
+        fetchMetrics();
+    }, []);
+
+    const recommendedArgs = [];
+    if (metrics) {
+        if (metrics.constructiveDenials > 2) recommendedArgs.push({ id: 'bad_faith', title: 'Argue a Pattern of Bad Faith', description: `Leverage the ${metrics.constructiveDenials} constructive denials.` });
+        if (metrics.privilegeLogFailures > 0) recommendedArgs.push({ id: 'privilege_waiver', title: 'Argue Waiver of Privilege', description: `The ${metrics.privilegeLogFailures} privilege log failures suggest waiver.` });
+        if (metrics.highRiskViolations > 0) recommendedArgs.push({ id: 'in_camera_review', title: 'Demand In Camera Review', description: `The ${metrics.highRiskViolations} high-risk violations necessitate judicial review.` });
+    }
+
+    const handleToggleArg = (id) => setSelectedArgs(prev => prev.includes(id) ? prev.filter(argId => argId !== id) : [...prev, id]);
+
+    // --- THIS IS THE KEY FRONTEND UPGRADE ---
+    const generateDraft = async () => {
+        setIsGenerating(true);
+        const response = await fetch('/api/draft', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ metrics, arguments: selectedArgs, tone }),
+        });
+
+        if (response.ok) {
+            // 1. Get the file data from the response as a "blob"
+            const blob = await response.blob();
+            // 2. Create a temporary URL for the blob
+            const url = window.URL.createObjectURL(blob);
+            // 3. Create a hidden link element
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "Draft_Motion.docx"; // The default filename for the download
+            // 4. Programmatically click the link to trigger the download
+            document.body.appendChild(a);
+            a.click();
+            // 5. Clean up by removing the link and revoking the temporary URL
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } else {
+            console.error("Failed to generate draft");
+        }
+        setIsGenerating(false);
+    };
+
+    if (pageIsLoading) {
+        return <main className="min-h-screen p-6 flex justify-center items-center"><div className="text-center"><p className="text-xl">Connecting to Wigdor Brain...</p></div></main>;
+    }
+
+    // The UI for steps 1 & 2 is the same. Step 3 is no longer needed as we download the file directly.
+    return (
+        <main className="min-h-screen p-6 pb-28 lg:max-w-4xl lg:mx-auto">
+            <h1 className="glow-text text-3xl font-bold mb-6 text-center">Smart Draft Assistant</h1>
+            
+            {/* Step 1: Select Arguments */}
+            {step === 1 && (
+                <div className="card-enhanced">
+                    <h2 className="text-xl font-semibold mb-1">Step 1: Select Core Arguments</h2>
+                    <p className="text-gray-400 mb-4">The Wigdor engine has analyzed the live data and recommends these key points.</p>
+                    <div className="space-y-3">{recommendedArgs.map(arg => (<div key={arg.id} onClick={() => handleToggleArg(arg.id)} className={`p-4 border rounded-lg cursor-pointer transition-all ${selectedArgs.includes(arg.id) ? 'bg-cyan-900 border-cyan-400' : 'border-gray-600 hover:border-gray-400'}`}><p className="font-bold">{arg.title}</p><p className="text-sm text-gray-300">{arg.description}</p></div>))}</div>
+                    <button onClick={() => setStep(2)} className="btn w-full mt-6" disabled={selectedArgs.length === 0}>Next: Set Tone</button>
+                </div>
+            )}
+
+            {/* Step 2: Set Tone & Generate */}
+            {step === 2 && (
+                <div className="card-enhanced">
+                    <h2 className="text-xl font-semibold mb-4">Step 2: Set the Tone</h2>
+                    <div className="space-y-3"><div onClick={() => setTone('professional')} className={`p-4 border rounded-lg cursor-pointer transition-all ${tone === 'professional' ? 'bg-cyan-900 border-cyan-400' : 'border-gray-600 hover:border-gray-400'}`}><p className="font-bold">Firm but Professional</p><p className="text-sm text-gray-300">Outlines failures and requests remedies clearly.</p></div><div onClick={() => setTone('aggressive')} className={`p-4 border rounded-lg cursor-pointer transition-all ${tone === 'aggressive' ? 'bg-cyan-900 border-cyan-400' : 'border-gray-600 hover:border-gray-400'}`}><p className="font-bold">Aggressively Seek Sanctions</p><p className="text-sm text-gray-300">Asserts bad faith and explicitly demands sanctions.</p></div></div>
+                    <div className="flex gap-4 mt-6">
+                        <button onClick={() => setStep(1)} className="btn-secondary w-full">Back</button>
+                        <button onClick={generateDraft} className="btn w-full" disabled={isGenerating}>
+                            {isGenerating ? 'Generating Document...' : 'Generate & Download .docx'}
+                        </button>
+                    </div>
+                </div>
+            )}
+        </main>
+    );
 }
