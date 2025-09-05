@@ -3,59 +3,28 @@
 @tailwind utilities;
 
 /* === Base Layout + Mobile Fix === */
-html {
-  /* Ensure html always takes full viewport height for background */
+html, body {
+  /* Allow the document to be as tall as its content */
   height: 100%;
-  min-height: 100vh;
-  /* Dark gradient background for the entire page */
-  background-color: #0a0a0f; /* fallback */
-  background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  background-size: cover;
-  /* Prevent scrollbars from appearing if content exceeds viewport */
-  overflow: hidden;
 }
 
 body {
-  height: 100%; /* Make body fill html height */
+  /* Set the background on the body, so it covers the entire page */
+  background-color: #0a0a0f; /* fallback */
+  background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
+  background-attachment: fixed; /* Keep the gradient in place during scroll */
+  background-repeat: no-repeat;
+  
+  /* Ensure the body at least fills the viewport */
+  min-height: 100vh;
   min-height: -webkit-fill-available; /* iOS + Chrome mobile hack */
-  margin: 0;
-  padding: 0;
+
   font-family: sans-serif;
   color: #e5e7eb;
-  /* Apply the safe-area padding here, or on your main app container */
-  /* padding-bottom: env(safe-area-inset-bottom); */
 }
-
-#__next, main {
-  height: 100%; /* Ensure Next.js root and main elements fill body */
-  /*
-    Instead of padding on html/body, consider applying padding to your *main content container*
-    that sits inside #__next or main. This way, your background still goes full screen,
-    but your actual content respects the safe area.
-  */
-  /* If you want the background to be completely unbroken to the bottom of the device,
-     and your content to push up, keep padding-bottom on a high-level container.
-     If the issue is truly just the background not filling, then the html background fix
-     should cover it.
-  */
-}
-
-/* Add a class for your main app content area */
-.app-container {
-  min-height: 100%; /* or specify a fixed height if needed */
-  /* This is where you might want to add padding for safe areas */
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  box-sizing: border-box; /* Include padding in height calculation */
-}
-
 
 /* === Subtle Grid Overlay === */
-body::before { /* Keep this as is, it's fine */
+body::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -67,4 +36,4 @@ body::before { /* Keep this as is, it's fine */
   pointer-events: none;
 }
 
-/* ... rest of your CSS ... */
+/* ... (Keep the rest of your CSS like .card, .btn, etc. as it was) ... */
