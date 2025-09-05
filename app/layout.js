@@ -15,10 +15,7 @@ export default function RootLayout({ children }) {
       <body className="relative min-h-screen">
         {/* === Background Gradient & Fractal === */}
         <div className="fixed inset-0 -z-10">
-          {/* Gradient base (let Tailwind handle it) */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]" />
-
-          {/* Subtle fractal overlay */}
           <svg
             className="absolute inset-0 w-full h-full opacity-20"
             xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +32,7 @@ export default function RootLayout({ children }) {
           </svg>
         </div>
 
-        {/* === Header === */}
+        {/* === Header (site-wide) === */}
         <header className="p-6 text-center">
           <h1 className="text-4xl font-bold glow-text drop-shadow-md">
             Bulldog PRA Autopilot
