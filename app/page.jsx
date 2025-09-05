@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 
-/* === Dashboard Page === */
 export default function Page() {
   return (
     <main className="p-6 space-y-6">
