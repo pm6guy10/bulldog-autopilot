@@ -1,76 +1,64 @@
-Perfect. Here’s a full new app/page.jsx that matches your sleek cobalt + neon theme, with glowing matter cards, rounded panels, and a 🧠 brain draft button.
-
-
----
-
-app/page.jsx
-
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Brain, ChevronRight } from "lucide-react";
+import { Loader2, BrainCircuit, ChevronRight } from "lucide-react";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
 import { createClient } from "@supabase/supabase-js";
 
-// Connect to Supabase
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-// Status indicator
 function StatusPill({ connected }) {
   return (
     <div
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${
+      className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium ${
         connected ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
       }`}
     >
       <span
-        className={`h-2.5 w-2.5 rounded-full ${
-          connected ? "bg-green-500" : "bg-red-500"
-        }`}
-      />
+        className={`h-2 w-2 rounded-full ${connected ? "bg-green-500" : "bg-red-500"}`}
+      ></span>
       {connected ? "Supabase Connected" : "Connection Failed"}
     </div>
   );
 }
 
-// Matter selection screen
 const MatterSelectionScreen = ({ matters, onSelect, connected }) => (
-  <div className="max-w-5xl mx-auto space-y-10">
-    <header className="space-y-4 text-center">
+  <div className="max-w-4xl mx-auto space-y-8">
+    <header className="space-y-4">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-5xl font-extrabold glow-text"
+        className="text-4xl sm:text-5xl font-bold glow-text"
       >
         Bulldog PRA Autopilot
       </motion.h1>
       <StatusPill connected={connected} />
     </header>
-    <main className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {(matters || []).map((matter) => (
-        <motion.div
-          key={matter.id}
-          whileHover={{ scale: 1.05 }}
-          className="panel cursor-pointer flex justify-between items-center"
-          onClick={() => onSelect(matter)}
-        >
-          <div>
-            <p className="font-bold text-lg">{matter.name}</p>
+    <main className="space-y-4">
+      <h2 className="text-2xl font-semibold text-[var(--text-secondary)]">
+        Select a Matter
+      </h2>
+      <div className="space-y-3">
+        {(matters || []).map((matter) => (
+          <motion.div
+            key={matter.id}
+            onClick={() => onSelect(matter)}
+            className="bg-[var(--panel)] p-4 rounded-lg border border-[var(--border)] cursor-pointer transition-all hover:border-[var(--accent)] hover:bg-slate-800"
+          >
+            <p className="font-bold text-lg text-white">{matter.name}</p>
             <p className="text-sm text-[var(--text-secondary)]">
               {matter.client_name || "Unknown"} — {matter.case_number || "No Case #"}
             </p>
-          </div>
-          <ChevronRight className="text-[var(--text-secondary)]" />
-        </motion.div>
-      ))}
+          </motion.div>
+        ))}
+      </div>
     </main>
   </div>
 );
 
-// Matter dashboard
 const MatterDashboard = ({ matter, summary, onBack, onDraft, isDrafting }) => {
   const factorData = summary.factors
     ? [
@@ -82,58 +70,62 @@ const MatterDashboard = ({ matter, summary, onBack, onDraft, isDrafting }) => {
     : [];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <header>
+    <div className="min-h-screen flex flex-col">
+      <header className="p-4">
         <button
           onClick={onBack}
-          className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors mb-6"
+          className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors mb-4"
         >
           ← Back to All Matters
         </button>
         <h1 className="text-4xl sm:text-5xl font-bold">{matter.name}</h1>
       </header>
-      <main className="grid md:grid-cols-2 gap-6">
-        {/* Total Violations */}
-        <div className="panel md:col-span-2 text-center">
+
+      <main className="flex-grow grid md:grid-cols-2 gap-6 p-4">
+        <div className="bg-[var(--panel)] p-6 border border-[var(--border)] rounded-lg text-center md:col-span-2">
           <h3 className="font-semibold text-[var(--text-secondary)]">
             Total Violations Logged
           </h3>
-          <p className="text-6xl font-extrabold text-white mt-2">
+          <p className="text-6xl font-bold text-white mt-2">
             {summary.total ?? <Loader2 className="animate-spin inline" />}
           </p>
         </div>
 
-        {/* Live Metrics */}
-        <div className="panel">
+        <div className="bg-[var(--panel)] p-6 border border-[var(--border)] rounded-lg">
           <h3 className="font-semibold text-[var(--text-secondary)] mb-4">
             Live Case Metrics
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span>High-Risk Violations:</span>
-              <span className="font-bold">{summary.factors?.high_risk_count ?? "-"}</span>
+              <span>High-Risk Violations:</span>{" "}
+              <span className="font-bold">
+                {summary.factors?.high_risk_count ?? "-"}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span>Constructive Denials:</span>
-              <span className="font-bold">{summary.factors?.denial_count ?? "-"}</span>
+              <span>Constructive Denials:</span>{" "}
+              <span className="font-bold">
+                {summary.factors?.denial_count ?? "-"}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span>Privilege Log Failures:</span>
-              <span className="font-bold">{summary.factors?.privilege_log_failures ?? "-"}</span>
+              <span>Privilege Log Failures:</span>{" "}
+              <span className="font-bold">
+                {summary.factors?.privilege_log_failures ?? "-"}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span>Average Delay (Days):</span>
+              <span>Average Delay (Days):</span>{" "}
               <span className="font-bold">{summary.factors?.avg_delay ?? "-"}</span>
             </div>
           </div>
         </div>
 
-        {/* Yousoufian Chart */}
-        <div className="panel">
+        <div className="bg-[var(--panel)] p-6 border border-[var(--border)] rounded-lg">
           <h3 className="font-semibold text-[var(--text-secondary)] mb-4">
-            Yousoufian Factor Score
+            Yousoufian Score
           </h3>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={200}>
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={factorData}>
               <PolarGrid stroke="var(--border)" />
               <PolarAngleAxis
@@ -144,37 +136,36 @@ const MatterDashboard = ({ matter, summary, onBack, onDraft, isDrafting }) => {
                 name="Score"
                 dataKey="A"
                 stroke="var(--accent)"
-                fill="var(--highlight)"
+                fill="var(--accent)"
                 fillOpacity={0.6}
               />
             </RadarChart>
           </ResponsiveContainer>
         </div>
-
-        {/* Draft Button */}
-        <div className="md:col-span-2 flex justify-center mt-6">
-          <button
-            onClick={onDraft}
-            className="btn-primary w-full max-w-md flex items-center justify-center gap-3 text-lg"
-            disabled={isDrafting}
-          >
-            {isDrafting ? (
-              <>
-                <Loader2 size={20} className="animate-spin" /> Drafting...
-              </>
-            ) : (
-              <>
-                <Brain size={22} /> Ask AI Partner to Draft Motion
-              </>
-            )}
-          </button>
-        </div>
       </main>
+
+      {/* Draft button pinned to bottom */}
+      <div className="p-6">
+        <button
+          onClick={onDraft}
+          className="btn-primary w-full max-w-md mx-auto flex items-center justify-center gap-3 text-lg"
+          disabled={isDrafting}
+        >
+          {isDrafting ? (
+            <>
+              <Loader2 size={20} className="animate-spin" /> Drafting...
+            </>
+          ) : (
+            <>
+              <BrainCircuit size={22} /> Ask AI Partner to Draft Motion
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 };
 
-// Main App
 export default function Page() {
   const [matters, setMatters] = useState([]);
   const [selectedMatter, setSelectedMatter] = useState(null);
@@ -183,7 +174,6 @@ export default function Page() {
   const [isDrafting, setIsDrafting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch matters
   useEffect(() => {
     async function fetchMatters() {
       try {
@@ -200,7 +190,6 @@ export default function Page() {
     fetchMatters();
   }, []);
 
-  // Fetch summary
   useEffect(() => {
     if (!selectedMatter) return;
     setSummary({ total: null, factors: null });
@@ -216,7 +205,6 @@ export default function Page() {
     fetchSummary();
   }, [selectedMatter]);
 
-  // Handle draft motion
   const handleDraftMotion = async () => {
     if (!selectedMatter) return;
     setIsDrafting(true);
@@ -242,18 +230,16 @@ export default function Page() {
     }
   };
 
-  // Loading screen
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin h-10 w-10 text-[var(--accent)]" />
+        <Loader2 className="animate-spin h-8 w-8 text-[var(--accent)]" />
       </div>
     );
   }
 
-  // Main UI
   return (
-    <div className="min-h-screen p-6 sm:p-10 font-sans">
+    <div className="min-h-screen p-4 sm:p-8 font-sans">
       <AnimatePresence mode="wait">
         {!selectedMatter ? (
           <motion.div
@@ -288,25 +274,3 @@ export default function Page() {
     </div>
   );
 }
-
-
----
-
-✅ What changed:
-
-Top branding: glowing “Bulldog PRA Autopilot” wordmark.
-
-Matter cards: clean glowing panels, hover scale, chevron arrow.
-
-Dashboard panels: rounded, glowing, neat grid.
-
-Draft button: glowing oval with 🧠 brain icon.
-
-Colors: tied into your cobalt + neon CSS theme.
-
-
-
----
-
-Do you want me to also give you a matching updated summary API file (/app/api/violations/summary/route.js) so the data definitely loads without breaking?
-
