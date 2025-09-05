@@ -4,13 +4,14 @@
 
 /* === Base Layout === */
 html, body {
-  min-height: 100vh;            /* stretch full screen height */
+  min-height: 100vh;
   font-family: sans-serif;
+
+  /* Dark gradient background */
   background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
-  color: #e5e7eb;
+  color: #e5e7eb; /* soft light gray */
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
 
 /* === Subtle Grid Overlay === */
@@ -24,12 +25,6 @@ body::before {
   background-size: 60px 60px;
   opacity: 0.08;
   pointer-events: none;
-}
-
-/* === Headings === */
-h1, h2, h3, h4 {
-  color: #f8fafc !important;
-  margin-bottom: 0.5rem;
 }
 
 /* === Card Panels === */
@@ -64,17 +59,6 @@ button:hover, .btn-primary:hover {
   box-shadow: 0 0 20px rgba(6, 182, 212, 0.8);
 }
 
-/* === Secondary Buttons === */
-.btn-secondary {
-  background: #1f2937;
-  color: #f8fafc !important;
-  border: 1px solid #334155;
-}
-
-.btn-secondary:hover {
-  background: #374151;
-}
-
 /* === Glow Text === */
 .glow-text {
   background: linear-gradient(90deg, #06b6d4, #10b981);
@@ -86,19 +70,11 @@ button:hover, .btn-primary:hover {
 /* === Fix Recharts Labels === */
 .recharts-text,
 .recharts-cartesian-axis-tick-value {
-  fill: #e5e7eb !important;
+  fill: #e5e7eb !important; /* light gray */
 }
 
-/* === Fix Recharts Radar Polygon Fill === */
-.recharts-polygon {
-  fill: url(#radarGradient) !important;
-  fill-opacity: 0.6 !important;
-  stroke: #06b6d4 !important;
-  stroke-width: 2px !important;
-}
-
-/* Define gradient for radar chart (cyan → green) */
-svg defs linearGradient#radarGradient {
-  stop:nth-child(1) { stop-color: #06b6d4; }
-  stop:nth-child(2) { stop-color: #10b981; }
+/* === Proof of Life Test === */
+h1 {
+  color: yellow !important;
+  border: 3px dashed magenta !important;
 }
