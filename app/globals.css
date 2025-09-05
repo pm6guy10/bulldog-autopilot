@@ -6,15 +6,13 @@
 html, body {
   min-height: 100%;
   font-family: sans-serif;
-
-  /* Dark gradient background */
   background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
-  color: #e5e7eb; /* soft light gray text */
+  color: #e5e7eb; /* light gray */
   margin: 0;
   padding: 0;
 }
 
-/* === Subtle grid overlay (like nodejs.org) === */
+/* === Subtle Grid Overlay === */
 body::before {
   content: "";
   position: fixed;
@@ -29,7 +27,7 @@ body::before {
 
 /* === Headings === */
 h1, h2, h3, h4 {
-  color: #f8fafc; /* light text */
+  color: #f8fafc !important; /* force light */
   margin-bottom: 0.5rem;
 }
 
@@ -44,7 +42,7 @@ h1, h2, h3, h4 {
 }
 
 /* === Buttons === */
-.btn {
+button, .btn {
   display: inline-block;
   padding: 0.6rem 1.2rem;
   border-radius: 0.5rem;
@@ -54,15 +52,26 @@ h1, h2, h3, h4 {
   border: none;
 }
 
-.btn-primary {
+button, .btn-primary {
   background: linear-gradient(135deg, #06b6d4, #10b981); /* cyan → green */
-  color: #0a0a0f;
+  color: #0a0a0f !important;
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
-.btn-primary:hover {
+button:hover, .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 0 20px rgba(6, 182, 212, 0.8);
+}
+
+/* === Secondary Buttons === */
+.btn-secondary {
+  background: #1f2937;
+  color: #f8fafc !important;
+  border: 1px solid #334155;
+}
+
+.btn-secondary:hover {
+  background: #374151;
 }
 
 /* === Glow Text === */
@@ -73,8 +82,8 @@ h1, h2, h3, h4 {
   text-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
 }
 
-/* === Fix chart labels (force light text) === */
+/* === Fix Recharts Labels === */
 .recharts-text,
 .recharts-cartesian-axis-tick-value {
-  fill: #e5e7eb !important; /* make chart labels light gray */
+  fill: #e5e7eb !important; /* light gray */
 }
