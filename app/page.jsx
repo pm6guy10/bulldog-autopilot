@@ -1,9 +1,75 @@
-// This is a temporary test file.
+// File: app/matters/yakima/page.js (or whichever file you found)
 
-export default function TestPage() {
+"use client";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
+
+// Sample data for the chart
+const data = [
+  { subject: 'Culpability', A: 100, fullMark: 150 },
+  { subject: 'Clarity', A: 85, fullMark: 150 },
+  { subject: 'Deterrence', A: 90, fullMark: 150 },
+  { subject: 'Delay', A: 40, fullMark: 150 },
+];
+
+export default function YakimaPage() {
   return (
-    <div>
-      <h1>IF YOU CAN SEE THIS, THIS IS THE CORRECT FILE.</h1>
-    </div>
+    // Add extra bottom padding to make space for the floating button
+    <main className="min-h-screen p-6 pb-28"> 
+      <h1 className="glow-text text-3xl font-bold mb-6 text-center">
+        Yakima PRA Litigation
+      </h1>
+
+      {/* --- Card 1: Total Violations Logged --- */}
+      <div className="card-enhanced text-center mb-6">
+        <p className="text-lg text-gray-400 mb-2">Total Violations Logged</p>
+        <p className="text-6xl font-bold">10</p>
+      </div>
+
+      {/* --- Card 2: Live Case Metrics --- */}
+      <div className="card-enhanced mb-6">
+        <p className="text-lg font-semibold mb-4">Live Case Metrics</p>
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <span>High-Risk Violations:</span>
+            <span className="font-bold">2</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Constructive Denials:</span>
+            <span className="font-bold">4</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Privilege Log Failures:</span>
+            <span className="font-bold">2</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Average Delay (Days):</span>
+            <span className="font-bold">0</span>
+          </div>
+        </div>
+      </div>
+
+      {/* --- Card 3: Yousoufian Score (with chart fixes) --- */}
+      <div className="card-enhanced">
+        <p className="text-lg font-semibold mb-4 text-center">Yousoufian Score</p>
+        <div style={{ width: '100%', height: 300 }}>
+          <ResponsiveContainer>
+            {/* Chart radius is smaller to give labels space */}
+            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+              <PolarGrid stroke="#334155" />
+              {/* Label font size is smaller to prevent overlap */}
+              <PolarAngleAxis dataKey="subject" tick={{ fill: '#e5e7eb', fontSize: 12 }} />
+              <Radar name="Score" dataKey="A" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.6} />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* --- Floating Bottom Button --- */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f] to-transparent pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <button className="btn w-full">
+          Draft Motion
+        </button>
+      </div>
+    </main>
   );
 }
