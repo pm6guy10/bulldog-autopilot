@@ -13,21 +13,21 @@ const data = [
 
 export default function YakimaPage() {
   return (
-    // Added bottom padding to respect the safe area on mobile
-    <main className="min-h-screen p-6 pb-[env(safe-area-inset-bottom)]">
+    // Add some extra bottom padding to make space for the floating button
+    <main className="min-h-screen p-6 pb-28"> 
       <h1 className="glow-text text-3xl font-bold mb-6 text-center">
         Yakima PRA Litigation
       </h1>
 
       {/* --- Card 1: Total Violations Logged --- */}
-      {/* CHANGED: The className is now "card-enhanced" */}
+      {/* This now uses the new "card-enhanced" style */}
       <div className="card-enhanced text-center mb-6">
         <p className="text-lg text-gray-400 mb-2">Total Violations Logged</p>
         <p className="text-6xl font-bold">10</p>
       </div>
 
       {/* --- Card 2: Live Case Metrics --- */}
-      {/* CHANGED: The className is now "card-enhanced" */}
+      {/* This now uses the new "card-enhanced" style */}
       <div className="card-enhanced mb-6">
         <p className="text-lg font-semibold mb-4">Live Case Metrics</p>
         <div className="space-y-3">
@@ -51,14 +51,14 @@ export default function YakimaPage() {
       </div>
 
       {/* --- Card 3: Yousoufian Score --- */}
-      {/* CHANGED: The className is now "card-enhanced" */}
+      {/* This now uses the new "card-enhanced" style */}
       <div className="card-enhanced">
         <p className="text-lg font-semibold mb-4 text-center">Yousoufian Score</p>
         <div style={{ width: '100%', height: 300 }}>
           <ResponsiveContainer>
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
               <PolarGrid stroke="#334155" />
-              <PolarAngleAxis dataKey="subject" tick={{ fill: '#e5e7eb' }} />
+              <PolarAngleAxis dataKey="subject" tick={{ fill: '#e5e7eb', fontSize: 14 }} />
               <Radar name="Score" dataKey="A" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.6} />
             </RadarChart>
           </ResponsiveContainer>
@@ -66,9 +66,9 @@ export default function YakimaPage() {
       </div>
 
       {/* --- Bottom Button --- */}
-      {/* This div makes sure the button stays at the bottom */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0a0a0f] to-transparent pb-[env(safe-area-inset-bottom)]">
-        {/* CHANGED: The className is now "btn w-full" to get the new hover style */}
+      {/* This div makes the button float at the bottom of the screen */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f] to-transparent pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        {/* This uses the new "btn" style from globals.css */}
         <button className="btn w-full">
           Draft Motion
         </button>
