@@ -1,14 +1,14 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: #020617;          /* slate-950 */
-  --panel: #0f172a;       /* slate-900 */
-  --border: #334155;      /* slate-700 */
-  --text-primary: #f1f5f9; /* slate-100 */
-  --text-secondary: #94a3b8; /* slate-400 */
-  --accent: #22d3ee;      /* cyan-400 */
+  --bg: #020617;
+  --panel: #0f172a;
+  --border: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --accent: #22d3ee;
 }
 
 html, body {
@@ -17,29 +17,17 @@ html, body {
   font-family: sans-serif;
 }
 
-.glow-text {
-  text-shadow: 0 0 12px rgba(34, 211, 238, 0.3); /* cyan accent glow */
-}
+.glow-text { text-shadow: 0 0 12px rgba(34, 211, 238, 0.3); }
 
 .btn-primary {
   background-color: var(--accent);
   color: var(--bg);
   box-shadow: 0 4px 14px 0 rgba(0, 229, 255, 0.38);
-  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  transition: all 0.2s;
 }
 
 .btn-primary:hover {
   background-color: #4fddf8;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px 0 rgba(0, 229, 255, 0.38);
-}
-
-.btn-secondary {
-  background-color: var(--panel);
-  border: 1px solid var(--border);
-}
-
-.btn-secondary:hover {
-  background-color: #1e293b; /* slate-800 */
-  border-color: #475569;     /* slate-600 */
 }
