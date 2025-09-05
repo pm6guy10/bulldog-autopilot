@@ -4,12 +4,13 @@
 
 /* === Base Layout === */
 html, body {
-  min-height: 100%;
+  min-height: 100vh;            /* stretch full screen height */
   font-family: sans-serif;
   background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
-  color: #e5e7eb; /* light gray */
+  color: #e5e7eb;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 /* === Subtle Grid Overlay === */
@@ -27,7 +28,7 @@ body::before {
 
 /* === Headings === */
 h1, h2, h3, h4 {
-  color: #f8fafc !important; /* force light */
+  color: #f8fafc !important;
   margin-bottom: 0.5rem;
 }
 
@@ -85,5 +86,19 @@ button:hover, .btn-primary:hover {
 /* === Fix Recharts Labels === */
 .recharts-text,
 .recharts-cartesian-axis-tick-value {
-  fill: #e5e7eb !important; /* light gray */
+  fill: #e5e7eb !important;
+}
+
+/* === Fix Recharts Radar Polygon Fill === */
+.recharts-polygon {
+  fill: url(#radarGradient) !important;
+  fill-opacity: 0.6 !important;
+  stroke: #06b6d4 !important;
+  stroke-width: 2px !important;
+}
+
+/* Define gradient for radar chart (cyan → green) */
+svg defs linearGradient#radarGradient {
+  stop:nth-child(1) { stop-color: #06b6d4; }
+  stop:nth-child(2) { stop-color: #10b981; }
 }
