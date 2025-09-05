@@ -1,6 +1,9 @@
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#111827] to-[#0a0a0f] text-gray-200 p-6">
+    // REMOVED: All "bg-gradient..." classes.
+    // ADDED: The special padding for the bottom: pb-[env(safe-area-inset-bottom)]
+    <main className="min-h-screen text-gray-200 p-6 pb-[env(safe-area-inset-bottom)]">
+      
       <h1 className="glow-text text-3xl font-bold mb-6">Bulldog PRA Autopilot</h1>
 
       <div className="bg-[#0f172a] border border-[#334155] rounded-xl p-4">
