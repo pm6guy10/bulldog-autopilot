@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 /* === Base Layout === */
-html, body {
+html, body, #__next, main {
   height: 100%;        /* stretch to full viewport */
-  min-height: 100vh;
+  min-height: 100vh;   /* cover viewport */
   margin: 0;
   padding: 0;
   font-family: sans-serif;
@@ -87,21 +87,4 @@ button:hover, .btn-primary:hover {
 .recharts-text,
 .recharts-cartesian-axis-tick-value {
   fill: #e5e7eb !important;
-}
-
-/* === Ensure Fullscreen Coverage === */
-#__next, main {
-  min-height: 100%;
-}
-/* === Force Fullscreen Gradient Coverage === */
-html, body, #__next, main {
-  height: 100% !important;
-  min-height: 100vh !important;
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  background-size: cover;
-  color: #e5e7eb;
 }
