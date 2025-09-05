@@ -88,3 +88,16 @@ button:hover, .btn-primary:hover {
 .recharts-cartesian-axis-tick-value {
   fill: #e5e7eb !important;
 }
+/* === Fullscreen Gradient Fix === */
+html, body {
+  height: 100%;           /* stretch to full viewport */
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
+  background-attachment: fixed; /* makes sure it stays locked */
+  color: #e5e7eb;
+}
+
+#__next, main {
+  min-height: 100%;       /* make sure Next.js content fills screen */
+}
