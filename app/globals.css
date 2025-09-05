@@ -38,7 +38,7 @@ body {
   color: var(--accent);
 }
 
-/* === Cards / Panels === */
+/* === Panels === */
 .bg-\[var\(--panel\)\] {
   background: var(--panel-gradient) !important;
   border-radius: 1rem;
