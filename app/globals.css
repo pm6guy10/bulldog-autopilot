@@ -2,65 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === Root Theme Variables === */
 :root {
-  --bg: 2, 6, 23;            /* deep navy */
-  --panel: 15, 23, 42;       /* slate panel */
-  --border: 51, 65, 85;      /* muted border */
-  --text-primary: 241, 245, 249;   /* white */
-  --text-secondary: 148, 163, 184; /* gray */
-  --accent: 34, 211, 238;    /* cyan neon */
-  --accent2: 20, 184, 166;   /* teal/mint neon */
+  --bg: #0a0f1f;         /* deep navy instead of pure black */
+  --panel: #111827;      /* slightly lighter for contrast */
+  --border: #1f2937;     /* subtle gray border */
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --accent: #2563eb;     /* cobalt blue */
+  --accent-2: #06b6d4;   /* cyan/teal neon */
 }
 
 html, body {
-  background-color: rgb(var(--bg));
-  color: rgb(var(--text-primary));
-  font-family: sans-serif;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
 }
 
-/* === Typography Glow === */
+/* Glow text for title */
 .glow-text {
-  text-shadow: 0 0 18px rgba(var(--accent), 0.5);
-  color: rgb(var(--accent));
+  text-shadow: 0 0 14px rgba(6, 182, 212, 0.6); /* teal glow */
 }
 
-/* === Panels === */
+/* Panels (cards) */
 .panel {
-  background-color: rgb(var(--panel));
-  border: 1px solid rgb(var(--border));
-  border-radius: 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
   padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
-/* === Neon Buttons === */
+/* Primary button */
 .btn-primary {
-  background: linear-gradient(90deg, rgb(var(--accent)) 0%, rgb(var(--accent2)) 100%);
-  color: rgb(var(--bg));
-  font-weight: bold;
-  padding: 1rem 1.5rem;
-  border-radius: 0.75rem;
-  text-align: center;
-  transition: all 0.25s ease-in-out;
-  box-shadow: 0 0 18px rgba(var(--accent), 0.4);
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: white;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.6);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 0 24px rgba(var(--accent2), 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 0 22px rgba(37, 99, 235, 0.9);
 }
 
-/* Secondary style (muted button) */
+/* Secondary button */
 .btn-secondary {
-  background-color: rgb(var(--panel));
-  border: 1px solid rgb(var(--border));
-  color: rgb(var(--text-secondary));
-  border-radius: 0.75rem;
-  padding: 0.75rem 1.25rem;
-  transition: all 0.25s;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: 500;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
 }
+
 .btn-secondary:hover {
-  background-color: rgb(30, 41, 59);
-  color: white;
-  border-color: rgb(71, 85, 105);
+  border-color: var(--accent);
+  color: var(--accent-2);
 }
