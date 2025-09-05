@@ -3,11 +3,6 @@
 @tailwind utilities;
 
 /* === Base Layout + Mobile Fix === */
-html, body {
-  /* Allow the document to be as tall as its content */
-  height: 100%;
-}
-
 body {
   /* Set the background on the body, so it covers the entire page */
   background-color: #0a0a0f; /* fallback */
@@ -15,7 +10,7 @@ body {
   background-attachment: fixed; /* Keep the gradient in place during scroll */
   background-repeat: no-repeat;
   
-  /* Ensure the body at least fills the viewport */
+  /* Ensure the body at least fills the viewport and can grow for scrolling */
   min-height: 100vh;
   min-height: -webkit-fill-available; /* iOS + Chrome mobile hack */
 
@@ -36,4 +31,4 @@ body::before {
   pointer-events: none;
 }
 
-/* ... (Keep the rest of your CSS like .card, .btn, etc. as it was) ... */
+/* ... (Keep your .card, .btn, .glow-text styles here) ... */
