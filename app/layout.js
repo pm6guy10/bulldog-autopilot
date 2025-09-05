@@ -1,8 +1,7 @@
-// app/layout.js
 import "./globals.css";
 import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
 
 export const metadata = {
   title: "Bulldog PRA Autopilot",
@@ -11,28 +10,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={inter.className}>
-      <body className="relative min-h-screen">
-        {/* === Background Gradient & Fractal === */}
-        <div className="fixed inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]" />
-          <svg
-            className="absolute inset-0 w-full h-full opacity-20"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="xMidYMid slice"
-          >
-            <defs>
-              <radialGradient id="fractal" cx="50%" cy="50%" r="80%">
-                <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.15" />
-                <stop offset="50%" stopColor="#0ea5e9" stopOpacity="0.08" />
-                <stop offset="100%" stopColor="#0a0f1f" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#fractal)" />
-          </svg>
-        </div>
-
-        {/* === Main Content === */}
+    <html lang="en">
+      <body className={`${inter.variable} font-sans relative min-h-screen`}>
+        {/* Background Elements */}
+        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]" />
+        {/* Main Content */}
         <main className="relative z-10 p-4 sm:p-6 lg:p-8">{children}</main>
       </body>
     </html>
