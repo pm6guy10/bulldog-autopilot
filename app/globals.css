@@ -4,12 +4,16 @@
 
 /* === Base Layout === */
 html, body {
-  min-height: 100vh;
+  height: 100%;        /* full coverage */
+  min-height: 100vh;   /* cover viewport */
   font-family: sans-serif;
 
   /* Dark gradient background */
   background: linear-gradient(135deg, #0a0a0f, #111827, #0a0a0f);
   background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+
   color: #e5e7eb; /* soft light gray */
   margin: 0;
   padding: 0;
@@ -60,6 +64,17 @@ button:hover, .btn-primary:hover {
   box-shadow: 0 0 20px rgba(6, 182, 212, 0.8);
 }
 
+/* === Secondary Buttons === */
+.btn-secondary {
+  background: #1f2937;
+  color: #f8fafc !important;
+  border: 1px solid #334155;
+}
+
+.btn-secondary:hover {
+  background: #374151;
+}
+
 /* === Glow Text === */
 .glow-text {
   background: linear-gradient(90deg, #06b6d4, #10b981);
@@ -71,16 +86,5 @@ button:hover, .btn-primary:hover {
 /* === Fix Recharts Labels === */
 .recharts-text,
 .recharts-cartesian-axis-tick-value {
-  fill: #e5e7eb !important; /* light gray */
-}
-/* === Fix iOS Chrome white bottom bar === */
-html, body {
-  background-color: #0a0a0f; /* solid dark fallback */
-}
-
-@supports (padding: max(0px)) {
-  body {
-    padding-bottom: env(safe-area-inset-bottom);
-    background-color: #0a0a0f;
-  }
+  fill: #e5e7eb !important;
 }
