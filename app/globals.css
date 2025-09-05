@@ -3,23 +3,45 @@
 @tailwind utilities;
 
 html, body {
-  @apply bg-bg text-text-primary min-h-screen font-sans;
+  min-height: 100%;
+  font-family: sans-serif;
+
+  /* === Dark gradient background === */
+  background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+  color: #e2e8f0; /* light gray text */
 }
 
-/* Glow text effect */
+/* === Subtle grid overlay === */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(#1e293b 1px, transparent 1px),
+                    linear-gradient(90deg, #1e293b 1px, transparent 1px);
+  background-size: 40px 40px; /* grid spacing */
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* === Glow text effect === */
 .glow-text {
-  text-shadow: 0 0 12px rgba(34, 211, 238, 0.3); /* matches accent */
+  color: #22d3ee;
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.7);
 }
 
-/* Primary button */
+/* === Primary button with neon glow === */
 .btn-primary {
-  @apply bg-accent text-bg rounded-lg px-4 py-2 font-medium;
-  box-shadow: 0 4px 14px 0 rgba(0, 229, 255, 0.38);
+  background: linear-gradient(135deg, #22d3ee, #3bffae);
+  color: #0a0f1f;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  box-shadow: 0 0 20px rgba(59, 255, 174, 0.5);
   transition: all 0.2s;
 }
 
 .btn-primary:hover {
-  background-color: #4fddf8; /* lighter cyan */
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px 0 rgba(0, 229, 255, 0.38);
+  box-shadow: 0 0 30px rgba(34, 211, 238, 0.8);
 }
