@@ -1,4 +1,4 @@
-// File: app/matters/yakima/page.js (FINAL ROBUST VERSION)
+// File: app/matters/yakima/page.js (FINAL ROBUST VERSION with Layout Fix)
 
 "use client";
 import Link from 'next/link';
@@ -7,39 +7,31 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } fro
 import { FileUpload } from '@/components/FileUpload';
 
 export default function YakimaPage() {
-  // State to hold our live data, loading status, and any potential errors
   const [metrics, setMetrics] = useState(null);
   const [chartData, setChartData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // This function fetches the live data when the component mounts
   useEffect(() => {
     async function fetchDashboardData() {
       setIsLoading(true);
-      setError(null); // Reset error on each fetch
+      setError(null);
       try {
         const response = await fetch('/api/matters/yakima/metrics');
-        if (!response.ok) {
-          // If the server gives a bad response, create an error
-          throw new Error(`The server responded with an error: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Server responded with an error: ${response.status}`);
         const data = await response.json();
         setMetrics(data.metrics);
         setChartData(data.chartData);
       } catch (e) {
-        // Catch any network errors or thrown errors
         console.error("Failed to fetch dashboard data:", e);
         setError("Could not connect to the case database. The API might be down or there's a connection issue.");
       } finally {
-        // This always runs, after success or failure
         setIsLoading(false);
       }
     }
     fetchDashboardData();
   }, []);
 
-  // STATE 1: Show a loading screen while fetching data
   if (isLoading) {
     return (
       <main className="min-h-screen p-6 flex justify-center items-center">
@@ -51,7 +43,6 @@ export default function YakimaPage() {
     );
   }
 
-  // STATE 2: If an error occurred, show an error message
   if (error) {
     return (
       <main className="min-h-screen p-6 flex justify-center items-center">
@@ -64,7 +55,6 @@ export default function YakimaPage() {
     );
   }
 
-  // STATE 3: If everything is successful, show the dashboard
   return (
     <main className="min-h-screen p-6 pb-28 lg:max-w-4xl lg:mx-auto"> 
       <h1 className="glow-text text-3xl font-bold mb-6 text-center">
@@ -86,8 +76,11 @@ export default function YakimaPage() {
         <FileUpload caseId="yakima" />
       </div>
 
-      <div className="lg:flex lg:flex-wrap lg:gap-6">
-        <div className="flex-1">
+      {/* === THIS IS THE LAYOUT FIX === */}
+      <div className="lg:flex lg:flex-wrap lg:gap-6 lg:justify-center">
+        
+        {/* --- Column 1 --- */}
+        <div className="flex-1 min-w-[300px]">
           <div className="card-enhanced text-center mb-6">
             <p className="text-lg text-gray-400 mb-2">Total Violations Logged</p>
             <p className="text-6xl font-bold">{metrics.totalViolations}</p>
@@ -101,7 +94,9 @@ export default function YakimaPage() {
             </div>
           </div>
         </div>
-        <div className="card-enhanced flex-1">
+        
+        {/* --- Column 2 --- */}
+        <div className="card-enhanced flex-1 min-w-[300px]">
           <p className="text-lg font-semibold mb-4 text-center">Yousoufian Score</p>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
