@@ -1,85 +1,40 @@
 // File: app/api/draft/route.js
 
 import { NextResponse } from 'next/server';
-// Import the necessary tools from the docx package
+// These imports are the key. They will only work after you run "npm install docx".
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 
-// This is our prompt generator. It creates the instructions for the "AI".
-function generateGptPrompt(metrics, selectedArgs, tone) {
-    const isAggressive = tone === 'aggressive';
-    let argumentsText = selectedArgs.join(', ').replace(/_/g, ' ');
-
-    return `
-        Write a formal Motion to Compel for Washington State Superior Court under RCW 42.56.550.
-        The motion should be based on the following facts and arguments:
-        - Case Facts: The agency has ${metrics.constructiveDenials} constructive denials, ${metrics.privilegeLogFailures} privilege log failures, and ${metrics.highRiskViolations} high-risk violations.
-        - Core Arguments: Focus on ${argumentsText}.
-        - Tone: The tone should be ${tone}. ${isAggressive ? 'Assert bad faith and demand sanctions.' : 'Be firm and professional.'}
-        - Penalties: Briefly mention that penalties will be calculated and requested. Do not do the math yet.
-        - Structure: Include an Introduction, an Argument section that develops the selected points, and a Conclusion.
-    `;
-}
-
-// This function will eventually be replaced by a real call to OpenAI or another LLM
-async function getAiGeneratedText(prompt) {
-    // --- SIMULATED AI RESPONSE ---
-    // For now, we return a pre-written, high-quality response.
-    // This allows us to build and test the entire document generation flow
-    // without needing an API key yet.
-    return `
-INTRODUCTION
-
-This motion seeks to compel the Agency's immediate compliance with the Public Records Act (PRA), RCW 42.56. The Agency has engaged in a clear pattern of delay and obstruction that violates its statutory duties. Despite numerous opportunities to comply, the Agency's conduct necessitates judicial intervention to enforce the public's right to transparency.
-
-ARGUMENT
-
-The Agency has demonstrated a pattern of bad faith non-compliance with the Public Records Act. On 4 separate occasions, the Agency failed to respond within the statutory timeframe, resulting in constructive denials of the requestor's valid PRA requests. This pattern is not mere negligence; it is a calculated strategy of evasion that demands sanctions.
-
-Furthermore, the Agency's claims of exemption are unsupported due to 2 documented failures to provide a compliant privilege log. By failing to meet its burden under the Act, the Agency has effectively waived its right to assert these exemptions. The Court must treat these exemptions as abandoned and compel the immediate and unredacted disclosure of all records withheld on these grounds.
-
-Given the 2 high-risk violations identified—including improper redactions and questionable withholdings—the Court cannot rely on the Agency's self-serving assertions. It is imperative that the Court conduct an in camera review of the withheld records to determine the validity of the claimed exemptions.
-
-CONCLUSION
-
-For the foregoing reasons, the Court should order the immediate release of all non-exempt records, find that the Agency has violated the PRA, and award statutory penalties and attorneys' fees. The requestor will provide a detailed calculation of penalties owed in a subsequent filing.
-    `;
-    // --- END SIMULATED RESPONSE ---
+// This function will eventually be a real AI call
+async function getAiGeneratedText(metrics, selectedArgs, tone) {
+    // High-quality simulated response for testing
+    return `INTRODUCTION\n\nThis motion seeks to compel the Agency's immediate compliance with the Public Records Act (PRA), RCW 42.56... (and so on)`;
 }
 
 export async function POST(request) {
     const { metrics, arguments: selectedArgs, tone } = await request.json();
 
-    // 1. Generate the prompt for our AI
-    const prompt = generateGptPrompt(metrics, selectedArgs, tone);
-    
-    // 2. Get the text from our (simulated) AI
-    const generatedText = await getAiGeneratedText(prompt);
+    const generatedText = await getAiGeneratedText(metrics, selectedArgs, tone);
 
-    // 3. Build the Word Document using the `docx` package
+    // This section uses the "docx" package to build the Word file
     const doc = new Document({
         sections: [{
-            properties: {},
             children: [
                 new Paragraph({ text: "MOTION TO COMPEL", heading: HeadingLevel.HEADING_1, alignment: 'center' }),
-                // Split the AI text into paragraphs and add them to the document
                 ...generatedText.trim().split('\n\n').map(text => new Paragraph({
                     children: [new TextRun(text)],
-                    spacing: { after: 200 }, // Adds a little space after each paragraph
+                    spacing: { after: 200 },
                 })),
             ],
         }],
     });
 
-    // 4. "Pack" the document into a format the browser can understand (a binary buffer)
     const buffer = await Packer.toBuffer(doc);
 
-    // 5. Send the document back to the user as a downloadable file
+    // This sends the generated file back to the browser for download
     return new NextResponse(buffer, {
         status: 200,
         headers: {
-            // This tells the browser to trigger a download
             "Content-Disposition": `attachment; filename="Draft_Motion.docx"`,
-            // This is the official MIME type for .docx files
             "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         },
     });
