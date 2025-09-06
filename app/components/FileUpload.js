@@ -2,41 +2,41 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-// This is the UI component for our file uploader.
 export function FileUpload({ caseId }) {
   const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState('Drag & drop case files here, or click to select (PDF only)');
+  const [message, setMessage] = useState('Drag & drop files, folders, or zips here');
 
   const onDrop = useCallback(async (acceptedFiles) => {
     if (acceptedFiles.length === 0 || uploading) return;
     
     setUploading(true);
-    const file = acceptedFiles[0];
-    setMessage(`Uploading ${file.name}...`);
+    setMessage(`Uploading ${acceptedFiles.length} file(s)...`);
 
     const formData = new FormData();
-    formData.append('file', file);
     formData.append('caseId', caseId);
+    // Add all files to the same form data
+    acceptedFiles.forEach(file => {
+      formData.append('files', file); // Use 'files' (plural) as the key
+    });
 
-    // This is the backend API route we will create next.
     const response = await fetch('/api/upload', {
       method: 'POST',
       body: formData,
     });
 
     setUploading(false);
+    const result = await response.json();
     if (response.ok) {
-      setMessage(`✅ Successfully uploaded ${file.name}! The AI brain will now process it.`);
+      setMessage(`✅ Batch upload complete! ${result.processed} files are now being processed by the AI.`);
     } else {
-      const result = await response.json();
       setMessage(`❌ Upload failed: ${result.error || 'Please try again.'}`);
     }
   }, [caseId, uploading]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'application/pdf': ['.pdf'] }, // Only accepts PDF files for now
-    multiple: false,
+    // We no longer restrict the file types here
+    multiple: true,
   });
 
   return (
