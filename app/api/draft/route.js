@@ -8,21 +8,23 @@ import Docxtemplater from 'docxtemplater';
 // Initialize Supabase client
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-// --- SURGICAL ARGUMENT BUILDER ---
-// This part remains the same. It just generates the raw text for the body.
+// --- SURGICAL ARGUMENT TEXT BUILDER ---
+// This function's only job is to create the raw text for the {body_section}
 function buildArgumentText(dossier, selectedArgs) {
     let body = "This is an action under the Washington Public Records Act, RCW 42.56.\n\n";
     
     const denials = dossier.filter(v => v.type === 'CONSTRUCTIVE_DENIAL');
     if (selectedArgs.includes('bad_faith') && denials.length > 0) {
-        body += `The Agency has engaged in a pattern of bad faith non-compliance, evidenced by ${denials.length} separate constructive denials of Requestor's valid PRA requests:\n`;
+        body += `The Agency has engaged in a pattern of bad faith non-compliance, evidenced by ${denials.length} separate constructive denials of Requestor's valid PRA requests:\n\n`;
         denials.forEach(denial => {
-            body += `\t• On or about ${denial.date}, the Agency failed to provide a timely response regarding "${denial.description}"\n`;
+            // Using a simple tab for indentation in the final text
+            body += `\t•  On or about ${denial.date}, the Agency failed to provide a timely response regarding "${denial.description}"\n`;
         });
         body += "\nThis pattern is not mere oversight; it is a calculated strategy of evasion that warrants sanctions under RCW 42.56.550.\n\n";
     }
     
-    // ... add more argument builders here ...
+    // You can add more argument builders here for a more complex body
+    // For example: if (selectedArgs.includes('privilege_waiver')) { ... }
 
     body += "For the foregoing reasons, Plaintiff seeks penalties of up to $100 per day per record under RCW 42.56.550(4), costs, and such other relief as the Court deems just.";
     return body;
@@ -32,7 +34,7 @@ export async function POST(request) {
     try {
         const { caseId, arguments: selectedArgs, tone } = await request.json();
 
-        // 1. Fetch the dossier (same as before)
+        // 1. Fetch the dossier for the case
         const host = request.headers.get('host');
         const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
         const dossierRes = await fetch(`${protocol}://${host}/api/matters/${caseId}/dossier`);
@@ -42,19 +44,19 @@ export async function POST(request) {
         // 2. Download the .docx template from Supabase Storage
         const { data: templateBlob, error: downloadError } = await supabase.storage
             .from('case-files')
-            .download('pleading_template.docx');
-        if (downloadError) throw new Error("Failed to download template: " + downloadError.message);
+            .download('pleading_template.docx'); // Make sure this filename is exact
+        if (downloadError) throw new Error("Template not found in Supabase Storage: " + downloadError.message);
 
         const templateBuffer = await templateBlob.arrayBuffer();
 
-        // 3. Unzip the docx template (docx files are just zip files)
+        // 3. Load the template into the docxtemplater engine
         const zip = new PizZip(templateBuffer);
         const doc = new Docxtemplater(zip, {
             paragraphLoop: true,
-            linebreaks: true,
+            linebreaks: true, // This allows \n to create new lines
         });
 
-        // 4. Prepare the data for the "Mail Merge"
+        // 4. Prepare the data for the Mail Merge
         const renderData = {
             plaintiff_name: "BRANDON KAPP",
             defendant_name: "WASHINGTON STATE DEPARTMENT OF VETERANS AFFAIRS",
@@ -66,16 +68,16 @@ export async function POST(request) {
             signature_title: "Plaintiff Pro Se"
         };
 
-        // 5. Perform the "find and replace" on the template
+        // 5. Perform the find-and-replace operation
         doc.render(renderData);
 
-        // 6. Zip the final document back up
+        // 6. Generate the final document buffer
         const finalBuffer = doc.getZip().generate({
             type: 'nodebuffer',
             compression: "DEFLATE",
         });
 
-        // 7. Send the final, merged document back to the user
+        // 7. Send the final, merged document to the user
         return new NextResponse(finalBuffer, {
             status: 200,
             headers: {
