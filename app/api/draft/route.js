@@ -1,4 +1,4 @@
-// File: app/api/draft/route.js
+// File: app/api/draft/route.js (DEBUG MODE)
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -8,76 +8,70 @@ import Docxtemplater from 'docxtemplater';
 // Initialize Supabase client
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-// --- SURGICAL ARGUMENT TEXT BUILDER ---
-// This function's only job is to create the raw text for the {body_section}
-function buildArgumentText(dossier, selectedArgs) {
-    let body = "This is an action under the Washington Public Records Act, RCW 42.56.\n\n";
-    
-    const denials = dossier.filter(v => v.type === 'CONSTRUCTIVE_DENIAL');
-    if (selectedArgs.includes('bad_faith') && denials.length > 0) {
-        body += `The Agency has engaged in a pattern of bad faith non-compliance, evidenced by ${denials.length} separate constructive denials of Requestor's valid PRA requests:\n\n`;
-        denials.forEach(denial => {
-            // Using a simple tab for indentation in the final text
-            body += `\t•  On or about ${denial.date}, the Agency failed to provide a timely response regarding "${denial.description}"\n`;
-        });
-        body += "\nThis pattern is not mere oversight; it is a calculated strategy of evasion that warrants sanctions under RCW 42.56.550.\n\n";
-    }
-    
-    // You can add more argument builders here for a more complex body
-    // For example: if (selectedArgs.includes('privilege_waiver')) { ... }
-
-    body += "For the foregoing reasons, Plaintiff seeks penalties of up to $100 per day per record under RCW 42.56.550(4), costs, and such other relief as the Court deems just.";
-    return body;
-}
+// --- (The argument and document builder functions are the same) ---
+function buildArgumentText(dossier, selectedArgs) { /* ... same as before ... */ }
+// ... paste the full buildArgumentText function here ...
 
 export async function POST(request) {
+    console.log("DEBUG: /api/draft route started."); // Log Step 1
+
     try {
         const { caseId, arguments: selectedArgs, tone } = await request.json();
+        console.log(`DEBUG: Received request for caseId: ${caseId}`); // Log Step 2
 
-        // 1. Fetch the dossier for the case
+        // 1. Fetch the dossier
         const host = request.headers.get('host');
         const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-        const dossierRes = await fetch(`${protocol}://${host}/api/matters/${caseId}/dossier`);
-        if (!dossierRes.ok) throw new Error("Failed to fetch dossier");
+        const baseUrl = `${protocol}://${host}`;
+        
+        console.log(`DEBUG: Fetching dossier from ${baseUrl}/api/matters/${caseId}/dossier`); // Log Step 3
+        const dossierRes = await fetch(`${baseUrl}/api/matters/${caseId}/dossier`);
+        if (!dossierRes.ok) {
+            const errorText = await dossierRes.text();
+            console.error("CRITICAL FAILURE: Failed to fetch dossier.", errorText);
+            throw new Error("Failed to fetch dossier");
+        }
         const dossier = await dossierRes.json();
+        console.log("DEBUG: Dossier fetched successfully."); // Log Step 4
+
         
         // 2. Download the .docx template from Supabase Storage
+        const templatePath = 'pleading_template.docx';
+        console.log(`DEBUG: Downloading template from Supabase Storage at path: ${templatePath}`); // Log Step 5
         const { data: templateBlob, error: downloadError } = await supabase.storage
             .from('case-files')
-            .download('pleading_template.docx'); // Make sure this filename is exact
-        if (downloadError) throw new Error("Template not found in Supabase Storage: " + downloadError.message);
+            .download(templatePath);
+            
+        if (downloadError) {
+            console.error("CRITICAL FAILURE: Could not download template from Supabase.", downloadError);
+            throw new Error("Template not found in Supabase Storage: " + downloadError.message);
+        }
+        console.log("DEBUG: Template downloaded successfully."); // Log Step 6
 
         const templateBuffer = await templateBlob.arrayBuffer();
-
-        // 3. Load the template into the docxtemplater engine
         const zip = new PizZip(templateBuffer);
-        const doc = new Docxtemplater(zip, {
-            paragraphLoop: true,
-            linebreaks: true, // This allows \n to create new lines
-        });
+        const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+        console.log("DEBUG: Docxtemplater initialized."); // Log Step 7
 
-        // 4. Prepare the data for the Mail Merge
+        // 3. Prepare render data (same as before)
         const renderData = {
             plaintiff_name: "BRANDON KAPP",
             defendant_name: "WASHINGTON STATE DEPARTMENT OF VETERANS AFFAIRS",
             case_number: "[CASE NUMBER]",
-            document_title: "COMPLAINT AND PETITION FOR PENALTIES UNDER RCW 42.56.550(4)",
-            body_section: buildArgumentText(dossier, selectedArgs),
+            document_title: "COMPLAINT AND PETITION FOR PENALTIES",
+            body_section: "This is the body text.", // Simplified for debugging
             date: new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date()),
             signature_name: "Brandon Kapp",
             signature_title: "Plaintiff Pro Se"
         };
-
-        // 5. Perform the find-and-replace operation
+        
+        console.log("DEBUG: Rendering document with data."); // Log Step 8
         doc.render(renderData);
 
-        // 6. Generate the final document buffer
-        const finalBuffer = doc.getZip().generate({
-            type: 'nodebuffer',
-            compression: "DEFLATE",
-        });
+        const finalBuffer = doc.getZip().generate({ type: 'nodebuffer', compression: "DEFLATE" });
+        console.log("DEBUG: Document generated successfully. Sending to user."); // Log Step 9
 
-        // 7. Send the final, merged document to the user
+        // 4. Send the final document
         return new NextResponse(finalBuffer, {
             status: 200,
             headers: {
@@ -87,7 +81,19 @@ export async function POST(request) {
         });
 
     } catch (error) {
-        console.error("Error in POST /api/draft:", error);
-        return new NextResponse(error.message, { status: 500 });
+        console.error("FATAL ERROR in /api/draft:", error);
+        // This ensures the frontend gets a clear error message
+        return new NextResponse(JSON.stringify({ message: error.message }), { status: 500 });
     }
+}
+
+// You still need this helper function, even though we simplified the call in the debug version
+function buildArgumentText(dossier, selectedArgs) {
+    let body = "This is an action under the Washington Public Records Act, RCW 42.56.\n\n";
+    const denials = dossier.filter(v => v.type === 'CONSTRUCTIVE_DENIAL');
+    if (selectedArgs.includes('bad_faith') && denials.length > 0) {
+        body += `The Agency has engaged in a pattern of bad faith non-compliance...\n\n`;
+    }
+    body += "For the foregoing reasons, Plaintiff seeks penalties...";
+    return body;
 }
