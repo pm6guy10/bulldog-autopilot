@@ -1,5 +1,3 @@
-// File: app/matters/yakima/page.js (FINAL ROBUST VERSION with Layout Fix)
-
 "use client";
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -74,10 +72,7 @@ export default function YakimaPage() {
         <FileUpload caseId="yakima" />
       </div>
 
-      {/* === THIS IS THE LAYOUT FIX === */}
       <div className="lg:flex lg:flex-wrap lg:gap-6 lg:justify-center">
-        
-        {/* --- Column 1 --- */}
         <div className="flex-1 min-w-[300px]">
           <div className="card-enhanced text-center mb-6">
             <p className="text-lg text-gray-400 mb-2">Total Violations Logged</p>
@@ -92,8 +87,6 @@ export default function YakimaPage() {
             </div>
           </div>
         </div>
-        
-        {/* --- Column 2 --- */}
         <div className="card-enhanced flex-1 min-w-[300px]">
           <p className="text-lg font-semibold mb-4 text-center">Yousoufian Score</p>
           <div style={{ width: '100%', height: 300 }}>
