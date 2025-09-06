@@ -1,41 +1,93 @@
-import { NextResponse } from 'next/server';
-// These imports are the key. They will only work after you run "npm install docx".
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
+// File: app/api/draft/route.js
 
-// This function will eventually be a real AI call
-async function getAiGeneratedText(metrics, selectedArgs, tone) {
-    // This is a high-quality simulated response for testing
-    // You can replace this with a real call to OpenAI's API later
-    return `INTRODUCTION\n\nThis motion seeks to compel the Agency's immediate compliance with the Public Records Act (PRA), RCW 42.56. The Agency has engaged in a clear pattern of delay and obstruction that violates its statutory duties.\n\nARGUMENT\n\nThe Agency has demonstrated a pattern of bad faith non-compliance. On ${metrics.constructiveDenials} separate occasions, the Agency failed to respond within the statutory timeframe, resulting in constructive denials. This pattern is not mere negligence; it is a calculated strategy of evasion that demands sanctions.\n\nFurthermore, the Agency's claims of exemption are unsupported due to ${metrics.privilegeLogFailures} documented failures to provide a compliant privilege log. By failing to meet its burden under the Act, the Agency has effectively waived its right to assert these exemptions.\n\nCONCLUSION\n\nFor the foregoing reasons, the Court should order the immediate release of all non-exempt records, find that the Agency has violated the PRA, and award statutory penalties and attorneys' fees.`;
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import PizZip from 'pizzip';
+import Docxtemplater from 'docxtemplater';
+
+// Initialize Supabase client
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+
+// --- SURGICAL ARGUMENT TEXT BUILDER ---
+// This function's only job is to create the raw text for the {body_section}
+function buildArgumentText(dossier, selectedArgs) {
+    let body = "This is an action under the Washington Public Records Act, RCW 42.56.\n\n";
+    
+    const denials = dossier.filter(v => v.type === 'CONSTRUCTIVE_DENIAL');
+    if (selectedArgs.includes('bad_faith') && denials.length > 0) {
+        body += `The Agency has engaged in a pattern of bad faith non-compliance, evidenced by ${denials.length} separate constructive denials of Requestor's valid PRA requests:\n\n`;
+        denials.forEach(denial => {
+            // Using a simple tab for indentation in the final text
+            body += `\t•  On or about ${denial.date}, the Agency failed to provide a timely response regarding "${denial.description}"\n`;
+        });
+        body += "\nThis pattern is not mere oversight; it is a calculated strategy of evasion that warrants sanctions under RCW 42.56.550.\n\n";
+    }
+    
+    // You can add more argument builders here for a more complex body
+    // For example: if (selectedArgs.includes('privilege_waiver')) { ... }
+
+    body += "For the foregoing reasons, Plaintiff seeks penalties of up to $100 per day per record under RCW 42.56.550(4), costs, and such other relief as the Court deems just.";
+    return body;
 }
 
 export async function POST(request) {
-    // We are renaming "arguments" to "selectedArgs" to avoid the JS keyword bug
-    const { metrics, arguments: selectedArgs, tone } = await request.json();
+    try {
+        const { caseId, arguments: selectedArgs, tone } = await request.json();
 
-    const generatedText = await getAiGeneratedText(metrics, selectedArgs, tone);
+        // 1. Fetch the dossier for the case
+        const host = request.headers.get('host');
+        const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+        const dossierRes = await fetch(`${protocol}://${host}/api/matters/${caseId}/dossier`);
+        if (!dossierRes.ok) throw new Error("Failed to fetch dossier");
+        const dossier = await dossierRes.json();
+        
+        // 2. Download the .docx template from Supabase Storage
+        const { data: templateBlob, error: downloadError } = await supabase.storage
+            .from('case-files')
+            .download('pleading_template.docx'); // Make sure this filename is exact
+        if (downloadError) throw new Error("Template not found in Supabase Storage: " + downloadError.message);
 
-    // This section uses the "docx" package to build the Word file
-    const doc = new Document({
-        sections: [{
-            children: [
-                new Paragraph({ text: "MOTION TO COMPEL", heading: HeadingLevel.HEADING_1, alignment: 'center' }),
-                ...generatedText.trim().split('\n\n').map(text => new Paragraph({
-                    children: [new TextRun(text)],
-                    spacing: { after: 200 },
-                })),
-            ],
-        }],
-    });
+        const templateBuffer = await templateBlob.arrayBuffer();
 
-    const buffer = await Packer.toBuffer(doc);
+        // 3. Load the template into the docxtemplater engine
+        const zip = new PizZip(templateBuffer);
+        const doc = new Docxtemplater(zip, {
+            paragraphLoop: true,
+            linebreaks: true, // This allows \n to create new lines
+        });
 
-    // This sends the generated file back to the browser for download
-    return new NextResponse(buffer, {
-        status: 200,
-        headers: {
-            "Content-Disposition": `attachment; filename="Draft_Motion.docx"`,
-            "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        },
-    });
+        // 4. Prepare the data for the Mail Merge
+        const renderData = {
+            plaintiff_name: "BRANDON KAPP",
+            defendant_name: "WASHINGTON STATE DEPARTMENT OF VETERANS AFFAIRS",
+            case_number: "[CASE NUMBER]",
+            document_title: "COMPLAINT AND PETITION FOR PENALTIES UNDER RCW 42.56.550(4)",
+            body_section: buildArgumentText(dossier, selectedArgs),
+            date: new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date()),
+            signature_name: "Brandon Kapp",
+            signature_title: "Plaintiff Pro Se"
+        };
+
+        // 5. Perform the find-and-replace operation
+        doc.render(renderData);
+
+        // 6. Generate the final document buffer
+        const finalBuffer = doc.getZip().generate({
+            type: 'nodebuffer',
+            compression: "DEFLATE",
+        });
+
+        // 7. Send the final, merged document to the user
+        return new NextResponse(finalBuffer, {
+            status: 200,
+            headers: {
+                "Content-Disposition": `attachment; filename="Complaint_${caseId}.docx"`,
+                "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            },
+        });
+
+    } catch (error) {
+        console.error("Error in POST /api/draft:", error);
+        return new NextResponse(error.message, { status: 500 });
+    }
 }
