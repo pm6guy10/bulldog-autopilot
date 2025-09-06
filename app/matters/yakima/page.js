@@ -1,9 +1,9 @@
-// File: app/matters/yakima/page.js (FINAL VERSION WITH UPLOADER)
+// File: app/matters/yakima/page.js (FINAL AND COMPLETE)
 
 "use client";
 import Link from 'next/link';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
-import { FileUpload } from '@/components/FileUpload'; // Import the new component
+import { FileUpload } from '@/components/FileUpload'; // Correctly import the component
 
 // Sample data for the chart
 const data = [
@@ -22,7 +22,7 @@ export default function YakimaPage() {
         Yakima PRA Litigation
       </h1>
 
-      {/* === THIS IS THE NEW CASE MEMORY VAULT SECTION === */}
+      {/* --- The Case Memory Vault Uploader --- */}
       <div className="card-enhanced mb-6">
         <h2 className="text-lg font-semibold mb-3">Case Memory Vault</h2>
         <p className="text-gray-400 text-sm mb-4">Upload case documents (PDFs) to the AI's persistent memory. The brain will begin processing them immediately.</p>
@@ -42,4 +42,37 @@ export default function YakimaPage() {
           <div className="card-enhanced mb-6">
             <p className="text-lg font-semibold mb-4">Live Case Metrics</p>
             <div className="space-y-3">
-              <div className="flex justify-between"><span>Hig
+              <div className="flex justify-between"><span>High-Risk Violations:</span><span className="font-bold">2</span></div>
+              <div className="flex justify-between"><span>Constructive Denials:</span><span className="font-bold">4</span></div>
+              <div className="flex justify-between"><span>Privilege Log Failures:</span><span className="font-bold">2</span></div>
+              <div className="flex justify-between"><span>Average Delay (Days):</span><span className="font-bold">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        {/* --- Column 2: For the radar chart --- */}
+        <div className="card-enhanced flex-1">
+          <p className="text-lg font-semibold mb-4 text-center">Yousoufian Score</p>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer>
+              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+                <PolarGrid stroke="#334155" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: '#e5e7eb', fontSize: 12 }} />
+                <Radar name="Score" dataKey="A" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.6} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* --- Floating Bottom Button --- */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f] to-transparent pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="lg:max-w-4xl lg:mx-auto">
+          <Link href="/matters/yakima/draft" className="btn w-full text-center">
+            Draft Motion
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}
