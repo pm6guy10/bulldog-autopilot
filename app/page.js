@@ -1,102 +1,23 @@
-// File: app/matters/yakima/draft/page.js
+// File: app/page.js (The Home Page)
 
-"use client";
-import { useState, useEffect } from 'react';
+export default function HomePage() {
+  return (
+    // This is the responsive container for the home page
+    <main className="min-h-screen p-6 pb-[env(safe-area-inset-bottom)] lg:max-w-4xl lg:mx-auto">
+      
+      <h1 className="glow-text text-3xl font-bold mb-6">Bulldog PRA Autopilot</h1>
 
-// This component is now fully wired for surgical drafting.
-export default function DraftPage() {
-    const [metrics, setMetrics] = useState(null);
-    const [pageIsLoading, setPageIsLoading] = useState(true);
-    const [step, setStep] = useState(1);
-    const [selectedArgs, setSelectedArgs] = useState([]);
-    const [tone, setTone] = useState('professional');
-    const [isGenerating, setIsGenerating] = useState(false);
+      <div className="card-enhanced">
+        <p className="text-lg font-semibold mb-3">Select a Matter</p>
 
-    // This fetches a simple summary just to power the argument recommender.
-    useEffect(() => {
-        const fetchSummaryMetrics = async () => {
-            setPageIsLoading(true);
-            // In a real app, this would be a fetch call. We'll simulate it for now.
-            const simulatedData = {
-                constructiveDenials: 4,
-                privilegeLogFailures: 2,
-                highRiskViolations: 2,
-            };
-            setMetrics(simulatedData);
-            setPageIsLoading(false);
-        };
-        fetchSummaryMetrics();
-    }, []);
-
-    // The recommender logic (same as before)
-    const recommendedArgs = [];
-    if (metrics) {
-        if (metrics.constructiveDenials > 0) recommendedArgs.push({ id: 'bad_faith', title: 'Argue Pattern of Bad Faith', description: `Leverage the ${metrics.constructiveDenials} constructive denials.` });
-        if (metrics.privilegeLogFailures > 0) recommendedArgs.push({ id: 'privilege_waiver', title: 'Argue Waiver of Privilege', description: `The ${metrics.privilegeLogFailures} privilege log failures suggest waiver.` });
-    }
-
-    const handleToggleArg = (id) => setSelectedArgs(prev => prev.includes(id) ? prev.filter(argId => argId !== id) : [...prev, id]);
-
-    // === THIS IS THE UPDATED FUNCTION ===
-    // It now includes `caseId: 'yakima'` in the request body.
-    const generateDraft = async () => {
-        setIsGenerating(true);
-        const response = await fetch('/api/draft', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                caseId: 'yakima', // This tells the brain which dossier to fetch
-                arguments: selectedArgs,
-                tone: tone
-            }),
-        });
-
-        if (response.ok) {
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "Surgical_Motion_Yakima.docx";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        } else {
-            console.error("Failed to generate surgical draft");
-            alert("An error occurred while generating the document. Please check the logs.");
-        }
-        setIsGenerating(false);
-    };
-
-    if (pageIsLoading) {
-        return <main className="min-h-screen p-6 flex justify-center items-center"><div className="text-center"><p className="text-xl">Loading Case Recommendations...</p></div></main>;
-    }
-
-    return (
-        <main className="min-h-screen p-6 pb-28 lg:max-w-4xl lg:mx-auto">
-            <h1 className="glow-text text-3xl font-bold mb-6 text-center">Surgical Draft Assistant</h1>
-            
-            {step === 1 && (
-                <div className="card-enhanced">
-                    <h2 className="text-xl font-semibold mb-1">Step 1: Select Core Arguments</h2>
-                    <p className="text-gray-400 mb-4">The Wigdor engine has analyzed the live data and recommends these key points.</p>
-                    <div className="space-y-3">{recommendedArgs.map(arg => (<div key={arg.id} onClick={() => handleToggleArg(arg.id)} className={`p-4 border rounded-lg cursor-pointer transition-all ${selectedArgs.includes(arg.id) ? 'bg-cyan-900 border-cyan-400' : 'border-gray-600 hover:border-gray-400'}`}><p className="font-bold">{arg.title}</p><p className="text-sm text-gray-300">{arg.description}</p></div>))}</div>
-                    <button onClick={() => setStep(2)} className="btn w-full mt-6" disabled={selectedArgs.length === 0}>Next: Set Tone</button>
-                </div>
-            )}
-
-            {step === 2 && (
-                <div className="card-enhanced">
-                    <h2 className="text-xl font-semibold mb-4">Step 2: Set the Tone</h2>
-                    <div className="space-y-3"><div onClick={() => setTone('professional')} className={`p-4 border rounded-lg cursor-pointer transition-all ${tone === 'professional' ? 'bg-cyan-900 border-cyan-400' : 'border-gray-600 hover:border-gray-400'}`}><p className="font-bold">Firm but Professional</p><p className-="text-sm text-gray-300">Outlines failures and requests remedies clearly.</p></div><div onClick={() => setTone('aggressive')} className={`p-4 border rounded-lg cursor-pointer transition-all ${tone === 'aggressive' ? 'bg-cyan-900 border-cyan-400' : 'border-gray-600 hover:border-gray-400'}`}><p className="font-bold">Aggressively Seek Sanctions</p><p className="text-sm text-gray-300">Asserts bad faith and explicitly demands sanctions.</p></div></div>
-                    <div className="flex gap-4 mt-6">
-                        <button onClick={() => setStep(1)} className="btn-secondary w-full">Back</button>
-                        <button onClick={generateDraft} className="btn w-full" disabled={isGenerating}>
-                            {isGenerating ? 'Generating Document...' : 'Generate Surgical .docx'}
-                        </button>
-                    </div>
-                </div>
-            )}
-        </main>
-    );
+        <a
+          href="/matters/yakima"
+          className="block p-4 border border-[#334155] rounded-lg hover:border-cyan-400 transition-colors"
+        >
+          <p className="font-bold">Yakima PRA Litigation</p>
+          <p className="text-sm text-gray-400">Brandon Kapp — 25-2-12345-6 SEA</p>
+        </a>
+      </div>
+    </main>
+  );
 }
