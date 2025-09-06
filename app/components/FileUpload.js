@@ -14,9 +14,8 @@ export function FileUpload({ caseId }) {
 
     const formData = new FormData();
     formData.append('caseId', caseId);
-    // Add all files to the same form data
     acceptedFiles.forEach(file => {
-      formData.append('files', file); // Use 'files' (plural) as the key
+      formData.append('files', file);
     });
 
     const response = await fetch('/api/upload', {
@@ -35,7 +34,6 @@ export function FileUpload({ caseId }) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    // We no longer restrict the file types here
     multiple: true,
   });
 
