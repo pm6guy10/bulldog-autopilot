@@ -86,7 +86,7 @@ export default function YakimaPage() {
         <FileUpload caseId="yakima" />
       </div>
 
-      <div className="lg:flex lg:gap-6">
+      <div className="lg:flex lg:flex-wrap lg:gap-6">
         <div className="flex-1">
           <div className="card-enhanced text-center mb-6">
             <p className="text-lg text-gray-400 mb-2">Total Violations Logged</p>
