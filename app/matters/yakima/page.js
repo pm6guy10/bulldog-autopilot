@@ -1,4 +1,4 @@
-// File: app/matters/yakima/page.js (V2.0 - Proactive AI)
+// File: app/matters/yakima/page.js (FINAL ROBUST VERSION)
 
 "use client";
 import Link from 'next/link';
@@ -7,24 +7,39 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } fro
 import { FileUpload } from '@/components/FileUpload';
 
 export default function YakimaPage() {
+  // State to hold our live data, loading status, and any potential errors
   const [metrics, setMetrics] = useState(null);
   const [chartData, setChartData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // This function fetches the live data when the component mounts
   useEffect(() => {
     async function fetchDashboardData() {
       setIsLoading(true);
-      const response = await fetch('/api/matters/yakima/metrics');
-      if (response.ok) {
+      setError(null); // Reset error on each fetch
+      try {
+        const response = await fetch('/api/matters/yakima/metrics');
+        if (!response.ok) {
+          // If the server gives a bad response, create an error
+          throw new Error(`The server responded with an error: ${response.status}`);
+        }
         const data = await response.json();
         setMetrics(data.metrics);
         setChartData(data.chartData);
+      } catch (e) {
+        // Catch any network errors or thrown errors
+        console.error("Failed to fetch dashboard data:", e);
+        setError("Could not connect to the case database. The API might be down or there's a connection issue.");
+      } finally {
+        // This always runs, after success or failure
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
     fetchDashboardData();
   }, []);
 
+  // STATE 1: Show a loading screen while fetching data
   if (isLoading) {
     return (
       <main className="min-h-screen p-6 flex justify-center items-center">
@@ -36,17 +51,29 @@ export default function YakimaPage() {
     );
   }
 
+  // STATE 2: If an error occurred, show an error message
+  if (error) {
+    return (
+      <main className="min-h-screen p-6 flex justify-center items-center">
+        <div className="card-enhanced text-center border-red-500/50">
+          <h2 className="text-xl font-semibold mb-3 text-red-400">Connection Error</h2>
+          <p className="text-gray-300">{error}</p>
+          <p className="text-gray-400 text-sm mt-2">Please check the Vercel logs for the `/api/matters/yakima/metrics` route for more details.</p>
+        </div>
+      </main>
+    );
+  }
+
+  // STATE 3: If everything is successful, show the dashboard
   return (
     <main className="min-h-screen p-6 pb-28 lg:max-w-4xl lg:mx-auto"> 
       <h1 className="glow-text text-3xl font-bold mb-6 text-center">
         Yakima PRA Litigation
       </h1>
 
-      {/* === THIS IS THE NEW PROACTIVE AI RECOMMENDATION ENGINE === */}
       <div className="card-enhanced mb-6 border-cyan-400/50">
         <h2 className="text-lg font-semibold mb-3">AI Strategy Briefing</h2>
         <p className="text-gray-300">{metrics.strategicRecommendation}</p>
-        {/* The "Draft Motion" button now only appears if the AI recommends it */}
         {metrics.recommendedAction === 'draft_motion_compel' && (
             <Link href="/matters/yakima/draft" className="btn w-full text-center mt-4">
               AI Recommended Action: Draft Motion to Compel
