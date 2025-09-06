@@ -1,3 +1,5 @@
+// File: app/api/draft/route.js (FINAL CALIBRATED VERSION)
+
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import PizZip from 'pizzip';
@@ -5,10 +7,17 @@ import Docxtemplater from 'docxtemplater';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
+// === THIS IS THE CORRECTED LOGIC ===
+// It now correctly builds the argument section based on your selections.
 function buildArgumentText(dossier, selectedArgs) {
+    // Start with the mandatory intro sentence.
     let body = "This is an action under the Washington Public Records Act, RCW 42.56.\n\n";
     
+    // Filter the evidence from the dossier.
     const denials = dossier.filter(v => v.type === 'CONSTRUCTIVE_DENIAL');
+    const logFailures = dossier.filter(v => v.type === 'PRIVILEGE_LOG_FAILURE');
+
+    // Conditionally add the "Bad Faith" argument IF selected.
     if (selectedArgs.includes('bad_faith') && denials.length > 0) {
         body += `The Agency has engaged in a pattern of bad faith non-compliance, evidenced by ${denials.length} separate constructive denials of Requestor's valid PRA requests:\n\n`;
         denials.forEach(denial => {
@@ -16,8 +25,15 @@ function buildArgumentText(dossier, selectedArgs) {
         });
         body += "\nThis pattern is not mere oversight; it is a calculated strategy of evasion that warrants sanctions under RCW 42.56.550.\n\n";
     }
+
+    // Conditionally add the "Waiver of Privilege" argument IF selected.
+    if (selectedArgs.includes('privilege_waiver') && logFailures.length > 0) {
+        body += `Furthermore, the Agency's claims of exemption are unsupported. By failing to provide a compliant privilege log on at least ${logFailures.length} occasions, the Agency has flagrantly abandoned its right to assert these exemptions through its non-compliance. The Court should order immediate disclosure of all records withheld on these grounds.\n\n`;
+    }
     
+    // Add the mandatory concluding sentence.
     body += "For the foregoing reasons, Plaintiff seeks penalties of up to $100 per day per record under RCW 42.56.550(4), costs, and such other relief as the Court deems just.";
+    
     return body;
 }
 
@@ -49,9 +65,7 @@ export async function POST(request) {
             document_title: "COMPLAINT AND PETITION FOR PENALTIES UNDER RCW 42.56.550(4)",
             body_section: buildArgumentText(dossier, selectedArgs),
             date: new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date()),
-            
             signature_block: `Respectfully submitted,\n\n/s/ Brandon Kapp\nBrandon Kapp, Plaintiff Pro Se\n3112 Wrangler Dr\nEllensburg, WA 98926\nPhone: (619) 517-6069\nEmail: b-kapp@outlook.com`,
-            
             certificate_of_service: `CERTIFICATE OF SERVICE\n\nI hereby certify that on this day, I caused the foregoing document to be served on the following parties via the method indicated:\n\n[OPPOSING COUNSEL NAME]\n[ADDRESS]\n[EMAIL]\n[X] By Email\n[ ] By Legal Messenger`
         };
 
