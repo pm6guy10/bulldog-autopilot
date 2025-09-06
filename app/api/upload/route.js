@@ -1,23 +1,25 @@
-import { createClient } from '@supabase/supabase-js';
+// File: app/api/upload/route.js (FINAL BOMB-PROOF VERSION)
+
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import JSZip from 'jszip';
 import mammoth from 'mammoth';
 import MsgReader from 'node-msg';
-import pdf from 'pdf-parse';
+// We are NO LONGER importing pdf-parse at the top of the file.
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-// --- Dummy Processor Functions (These will be built out in the next phase) ---
+// --- Dummy Processor Function ---
 async function processAndSaveChunks(text, metadata) {
-  // In the next phase, this function will chunk the text, create embeddings,
-  // and save everything to the 'documents' table in Supabase.
   console.log(`Processing text from ${metadata.fileName}. Length: ${text.length}`);
-  // For now, it just logs a message.
   return;
 }
 
 // --- The File Processors ---
 async function processPdf(buffer, metadata) {
+  // === THIS IS THE FIX ===
+  // We now import the library dynamically, right when we need it.
+  const pdf = (await import('pdf-parse')).default;
   const data = await pdf(buffer);
   await processAndSaveChunks(data.text, metadata);
 }
@@ -39,7 +41,6 @@ async function processZip(buffer, metadata) {
   for (const filename in zip.files) {
     if (!zip.files[filename].dir) {
       const fileBuffer = await zip.files[filename].async('nodebuffer');
-      // Recursively call the main processor for each file inside the zip
       await processFile(fileBuffer, { ...metadata, fileName: filename, originalFile: metadata.fileName });
     }
   }
@@ -60,14 +61,13 @@ async function processFile(buffer, metadata) {
 export async function POST(request) {
   try {
     const formData = await request.formData();
-    const files = formData.getAll('files'); // getAll retrieves all files
+    const files = formData.getAll('files');
     const caseId = formData.get('caseId');
 
     if (!files || files.length === 0 || !caseId) {
       return NextResponse.json({ error: 'At least one file and a Case ID are required.' }, { status: 400 });
     }
     
-    // Process each file in the batch
     for (const file of files) {
       const buffer = Buffer.from(await file.arrayBuffer());
       await supabase.storage.from('case-files').upload(`${caseId}/${file.name}`, buffer, { upsert: true });
