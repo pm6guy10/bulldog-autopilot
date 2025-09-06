@@ -62,4 +62,13 @@ export async function POST(request) {
         return new NextResponse(finalBuffer, {
             status: 200,
             headers: {
-                "Content-Disposition": `at
+                "Content-Disposition": `attachment; filename="Complaint_${caseId}_Final.docx"`,
+                "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            },
+        });
+
+    } catch (error) {
+        console.error("FATAL ERROR in /api/draft:", error);
+        return new NextResponse(JSON.stringify({ message: error.message }), { status: 500 });
+    }
+}
