@@ -1,4 +1,4 @@
-// File: app/matters/yakima/page.js (LIVE DASHBOARD)
+// File: app/matters/yakima/page.js (V2.0 - Proactive AI)
 
 "use client";
 import Link from 'next/link';
@@ -7,12 +7,10 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } fro
 import { FileUpload } from '@/components/FileUpload';
 
 export default function YakimaPage() {
-  // State to hold our live data
   const [metrics, setMetrics] = useState(null);
   const [chartData, setChartData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // This function fetches the live data when the component mounts
   useEffect(() => {
     async function fetchDashboardData() {
       setIsLoading(true);
@@ -27,7 +25,6 @@ export default function YakimaPage() {
     fetchDashboardData();
   }, []);
 
-  // Show a loading state while fetching data
   if (isLoading) {
     return (
       <main className="min-h-screen p-6 flex justify-center items-center">
@@ -45,6 +42,18 @@ export default function YakimaPage() {
         Yakima PRA Litigation
       </h1>
 
+      {/* === THIS IS THE NEW PROACTIVE AI RECOMMENDATION ENGINE === */}
+      <div className="card-enhanced mb-6 border-cyan-400/50">
+        <h2 className="text-lg font-semibold mb-3">AI Strategy Briefing</h2>
+        <p className="text-gray-300">{metrics.strategicRecommendation}</p>
+        {/* The "Draft Motion" button now only appears if the AI recommends it */}
+        {metrics.recommendedAction === 'draft_motion_compel' && (
+            <Link href="/matters/yakima/draft" className="btn w-full text-center mt-4">
+              AI Recommended Action: Draft Motion to Compel
+            </Link>
+        )}
+      </div>
+
       <div className="card-enhanced mb-6">
         <h2 className="text-lg font-semibold mb-3">Case Memory Vault</h2>
         <FileUpload caseId="yakima" />
@@ -54,17 +63,14 @@ export default function YakimaPage() {
         <div className="flex-1">
           <div className="card-enhanced text-center mb-6">
             <p className="text-lg text-gray-400 mb-2">Total Violations Logged</p>
-            {/* These now display LIVE data */}
             <p className="text-6xl font-bold">{metrics.totalViolations}</p>
           </div>
           <div className="card-enhanced mb-6">
             <p className="text-lg font-semibold mb-4">Live Case Metrics</p>
             <div className="space-y-3">
-              {/* These now display LIVE data */}
               <div className="flex justify-between"><span>High-Risk Violations:</span><span className="font-bold">{metrics.highRiskViolations}</span></div>
               <div className="flex justify-between"><span>Constructive Denials:</span><span className="font-bold">{metrics.constructiveDenials}</span></div>
               <div className="flex justify-between"><span>Privilege Log Failures:</span><span className="font-bold">{metrics.privilegeLogFailures}</span></div>
-              <div className="flex justify-between"><span>Average Delay (Days):</span><span className="font-bold">{metrics.averageDelay}</span></div>
             </div>
           </div>
         </div>
@@ -72,7 +78,6 @@ export default function YakimaPage() {
           <p className="text-lg font-semibold mb-4 text-center">Yousoufian Score</p>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
-              {/* The chart now uses LIVE data */}
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
                 <PolarGrid stroke="#334155" />
                 <PolarAngleAxis dataKey="subject" tick={{ fill: '#e5e7eb', fontSize: 12 }} />
@@ -80,14 +85,6 @@ export default function YakimaPage() {
               </RadarChart>
             </ResponsiveContainer>
           </div>
-        </div>
-      </div>
-
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f] to-transparent pb-[calc(1rem+env(safe-area-inset-bottom))]">
-        <div className="lg:max-w-4xl lg:mx-auto">
-          <Link href="/matters/yakima/draft" className="btn w-full text-center">
-            Draft Motion
-          </Link>
         </div>
       </div>
     </main>
