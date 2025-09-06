@@ -37,7 +37,6 @@ export default function YakimaPage() {
       <main className="min-h-screen p-6 flex justify-center items-center">
         <div className="text-center">
           <p className="text-xl">Connecting to Case File...</p>
-          <p className="text-gray-400">Loading live metrics from database...</p>
         </div>
       </main>
     );
@@ -49,7 +48,6 @@ export default function YakimaPage() {
         <div className="card-enhanced text-center border-red-500/50">
           <h2 className="text-xl font-semibold mb-3 text-red-400">Connection Error</h2>
           <p className="text-gray-300">{error}</p>
-          <p className="text-gray-400 text-sm mt-2">Please check the Vercel logs for the `/api/matters/yakima/metrics` route for more details.</p>
         </div>
       </main>
     );
