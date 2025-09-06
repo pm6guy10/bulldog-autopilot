@@ -1,9 +1,9 @@
-// File: app/matters/yakima/page.js (FINAL AND COMPLETE)
+// THIS IS THE FULL AND CORRECT FILE for app/matters/yakima/page.js
 
 "use client";
 import Link from 'next/link';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
-import { FileUpload } from '@/components/FileUpload'; // Correctly import the component
+import { FileUpload } from '@/components/FileUpload';
 
 // Sample data for the chart
 const data = [
@@ -15,7 +15,6 @@ const data = [
 
 export default function YakimaPage() {
   return (
-    // This is the responsive container for the dashboard page
     <main className="min-h-screen p-6 pb-28 lg:max-w-4xl lg:mx-auto"> 
       
       <h1 className="glow-text text-3xl font-bold mb-6 text-center">
@@ -32,7 +31,6 @@ export default function YakimaPage() {
       {/* --- This is the rest of your original dashboard page --- */}
       <div className="lg:flex lg:gap-6">
         
-        {/* --- Column 1: For the first two cards --- */}
         <div className="flex-1">
           <div className="card-enhanced text-center mb-6">
             <p className="text-lg text-gray-400 mb-2">Total Violations Logged</p>
@@ -50,7 +48,6 @@ export default function YakimaPage() {
           </div>
         </div>
 
-        {/* --- Column 2: For the radar chart --- */}
         <div className="card-enhanced flex-1">
           <p className="text-lg font-semibold mb-4 text-center">Yousoufian Score</p>
           <div style={{ width: '100%', height: 300 }}>
