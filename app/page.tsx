@@ -1,6 +1,7 @@
 ﻿'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { Scale, DollarSign, AlertCircle, TrendingUp, Calendar, Upload } from 'lucide-react';
 
 interface Case {
   id: number;
@@ -15,11 +16,14 @@ interface Case {
   };
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value, icon: Icon }: { label: string; value: string; icon: any }) {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center">
-      <p className="text-3xl font-bold text-white">{value}</p>
-      <p className="text-sm text-white/70 mt-1">{label}</p>
+    <div className="rounded-2xl bg-slate-800/60 backdrop-blur-lg border border-slate-700/40 p-8 shadow-sm hover:shadow-md hover:border-slate-600/50 transition-all duration-300">
+      <div className="flex items-center justify-between mb-4">
+        <Icon className="w-6 h-6 text-slate-400" />
+      </div>
+      <p className="text-slate-400 text-xs tracking-wide uppercase mb-2">{label}</p>
+      <p className="text-4xl font-semibold text-white">{value}</p>
     </div>
   );
 }
@@ -32,6 +36,7 @@ function CaseCard({ title, exposure, details, onClick }: {
 }) {
   const [expanded, setExpanded] = useState(false);
   const isIdle = details.idle > 200;
+  const hasHighExposure = parseInt(exposure.replace(/[$,]/g, '')) > 5000;
 
   return (
     <div
@@ -39,62 +44,79 @@ function CaseCard({ title, exposure, details, onClick }: {
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
       className={`
-        relative bg-white/5 backdrop-blur-md border 
-        ${isIdle 
-          ? 'border-warning/50 shadow-lg shadow-warning/20' 
-          : 'border-white/10 hover:border-gradientFrom'
+        relative rounded-2xl bg-slate-800/60 backdrop-blur-lg border transition-all duration-300 cursor-pointer
+        ${isIdle || hasHighExposure 
+          ? 'border-amber-400/50 shadow-lg shadow-amber-400/10' 
+          : 'border-slate-700/40 hover:border-slate-600/60'
         }
-        rounded-2xl p-6 shadow-lg transition-all duration-300 cursor-pointer
-        hover:transform hover:scale-[1.02] hover:shadow-xl hover:shadow-gradientFrom/20
+        p-8 shadow-sm hover:shadow-md hover:scale-[1.01]
       `}
     >
-      {/* Default View - Clean */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-white">{title}</h2>
-          <div className="w-3 h-3 rounded-full bg-success shadow-lg shadow-success/50" />
+      {/* Clean Default View */}
+      <div className="space-y-4">
+        <div className="flex items-start justify-between">
+          <h3 className="text-2xl font-light text-white leading-tight pr-4">{title}</h3>
+          <div className="w-3 h-3 rounded-full bg-emerald-400 shadow-sm flex-shrink-0 mt-2" />
         </div>
         
-        <p className="text-3xl font-bold bg-gradient-to-r from-gradientFrom to-gradientTo text-transparent bg-clip-text">
-          {exposure}
-        </p>
+        <div>
+          <p className="text-3xl font-semibold text-blue-400 mb-1">
+            {exposure}
+          </p>
+          <p className="text-slate-400 text-xs tracking-wide">TOTAL EXPOSURE</p>
+        </div>
       </div>
 
-      {/* Expanded Details - Smooth Reveal */}
-      {expanded && (
-        <div className="mt-6 pt-4 border-t border-white/10 space-y-2 animate-in fade-in duration-300">
-          <p className="text-textSecondary text-sm">#{details.number}</p>
-          <div className="grid grid-cols-2 gap-2 text-textSecondary text-sm">
-            <span>Filed: {details.date}</span>
-            <span>Files: {details.files}</span>
-            <span>Violations: {details.violations}</span>
-            <span className={details.idle > 200 ? 'text-warning font-medium' : ''}>
-              Idle: {details.idle}d
-            </span>
+      {/* Smooth Details Expansion */}
+      <div className={`transition-all duration-300 overflow-hidden ${expanded ? 'max-h-96 opacity-100 mt-6' : 'max-h-0 opacity-0'}`}>
+        <div className="border-t border-slate-700/30 pt-6 space-y-4">
+          <div className="text-slate-400 text-sm font-mono">#{details.number}</div>
+          
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-slate-500 text-xs tracking-wide">FILED</p>
+              <p className="text-slate-300">{details.date}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 text-xs tracking-wide">FILES</p>
+              <p className="text-slate-300">{details.files}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 text-xs tracking-wide">VIOLATIONS</p>
+              <p className="text-slate-300">{details.violations}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 text-xs tracking-wide">LAST ACTIVITY</p>
+              <p className={details.idle > 200 ? 'text-amber-400' : 'text-slate-300'}>
+                {details.idle}d ago
+              </p>
+            </div>
           </div>
           
-          {/* Quick Actions */}
-          <div className="flex gap-2 pt-3">
+          {/* Clean Action Buttons */}
+          <div className="flex gap-3 pt-2">
             <button 
-              className="px-3 py-1 bg-gradientFrom hover:bg-gradientFrom/90 rounded-full text-sm font-medium text-white transition-all duration-200 hover:scale-105"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-medium text-white shadow-sm hover:shadow-md transition-all"
               onClick={(e) => { e.stopPropagation(); }}
             >
-              📅 Follow up
+              <Calendar className="w-4 h-4" />
+              Follow up
             </button>
             <button 
-              className="px-3 py-1 bg-action hover:bg-action/90 rounded-full text-sm font-medium text-background transition-all duration-200 hover:scale-105"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm font-medium text-slate-200 shadow-sm hover:shadow-md transition-all"
               onClick={(e) => { e.stopPropagation(); }}
             >
-              📂 Upload
+              <Upload className="w-4 h-4" />
+              Upload
             </button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
-export default function JobsLevelDashboard() {
+export default function RefinedDashboard() {
   const [expandedPriority, setExpandedPriority] = useState(false);
   const [showNewCase, setShowNewCase] = useState(false);
 
@@ -105,7 +127,7 @@ export default function JobsLevelDashboard() {
       exposure: "$6,500",
       details: {
         number: "25-2-25387-2 SEA",
-        date: "2025-01-15",
+        date: "Jan 15, 2025",
         files: 0,
         violations: 2,
         idle: 455,
@@ -113,11 +135,11 @@ export default function JobsLevelDashboard() {
     },
     {
       id: 2,
-      title: "Yakima PRA",
+      title: "Yakima PRA", 
       exposure: "$2,500",
       details: {
         number: "25-2-02050-39",
-        date: "2025-02-01",
+        date: "Feb 1, 2025",
         files: 0,
         violations: 1,
         idle: 215,
@@ -129,7 +151,7 @@ export default function JobsLevelDashboard() {
       exposure: "$0",
       details: {
         number: "25-2-00320-19",
-        date: "2025-01-20",
+        date: "Jan 20, 2025",
         files: 0,
         violations: 0,
         idle: 236,
@@ -141,7 +163,7 @@ export default function JobsLevelDashboard() {
       exposure: "$0",
       details: {
         number: "25-3764",
-        date: "2025-01-10",
+        date: "Jan 10, 2025",
         files: 0,
         violations: 0,
         idle: 246,
@@ -152,64 +174,73 @@ export default function JobsLevelDashboard() {
   const urgentCases = cases.filter(c => c.details.idle > 200 || parseInt(c.exposure.replace(/[$,]/g, '')) > 5000);
 
   return (
-    <div className="min-h-screen bg-background text-white">
-      {/* Hero Header - Gradient Strip */}
-      <div className="bg-gradient-to-r from-gradientFrom to-gradientTo">
-        <div className="max-w-7xl mx-auto p-8">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold text-white">Good Morning Brandon 👋</h1>
-            <button 
-              onClick={() => setShowNewCase(true)}
-              className="bg-action hover:bg-action/90 text-background font-semibold px-6 py-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105"
-            >
-              + New Case
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900">
+      {/* Clean Hero Header */}
+      <div className="max-w-8xl mx-auto px-8 pt-16 pb-8">
+        <div className="flex items-center justify-between mb-12">
+          <div className="space-y-2">
+            <h1 className="text-5xl font-light text-white tracking-tight">
+              Good Morning Brandon
+            </h1>
+            <p className="text-slate-400 text-lg tracking-wide">YOUR EXECUTIVE BRIEFING</p>
           </div>
+          <button 
+            onClick={() => setShowNewCase(true)}
+            className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
+          >
+            + New Case
+          </button>
+        </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <StatCard label="Active Cases" value="4" />
-            <StatCard label="Exposure" value="$9,000" />
-            <StatCard label="Action Items" value={urgentCases.length.toString()} />
-            <StatCard label="Recent Activity" value="1" />
-          </div>
+        {/* Clean Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard label="Active Cases" value="4" icon={Scale} />
+          <StatCard label="Total Exposure" value="$9,000" icon={DollarSign} />
+          <StatCard label="Action Items" value={urgentCases.length.toString()} icon={AlertCircle} />
+          <StatCard label="Recent Activity" value="1" icon={TrendingUp} />
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto p-8 space-y-8">
-        {/* Priority Banner - Collapsible */}
+      <div className="max-w-8xl mx-auto px-8 pb-16 space-y-8">
+        {/* Slim Priority Banner */}
         {urgentCases.length > 0 && (
           <div 
-            className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-lg cursor-pointer transition-all duration-300 hover:bg-white/10"
+            className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 backdrop-blur-sm border border-amber-400/30 rounded-2xl p-6 shadow-sm cursor-pointer transition-all hover:shadow-md"
             onClick={() => setExpandedPriority(!expandedPriority)}
           >
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-warning flex items-center">
-                🔥 {urgentCases.length} Cases Need Attention
-              </h2>
-              <span 
-                className="text-textSecondary transition-transform duration-300"
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <AlertCircle className="w-5 h-5 text-amber-400" />
+                <div>
+                  <h2 className="text-lg font-medium text-white">
+                    {urgentCases.length} Cases Need Attention
+                  </h2>
+                  <p className="text-amber-200/80 text-sm">Click to view details</p>
+                </div>
+              </div>
+              <div 
+                className="w-6 h-6 flex items-center justify-center transition-transform duration-300"
                 style={{ transform: expandedPriority ? 'rotate(90deg)' : 'rotate(0deg)' }}
               >
-                ▶
-              </span>
+                <span className="text-amber-400">▶</span>
+              </div>
             </div>
             
             {expandedPriority && (
-              <div className="mt-4 space-y-3 animate-in fade-in duration-300">
+              <div className="mt-6 space-y-4 animate-in fade-in duration-300">
                 {urgentCases.map((caseItem, i) => (
-                  <div key={i} className="text-textSecondary">
-                    <div className="font-medium text-white">
+                  <div key={i} className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/20">
+                    <div className="font-medium text-white mb-1">
                       {caseItem.details.idle > 200 
                         ? `Review ${caseItem.title} case files and schedule follow-up` 
                         : `Draft motion for statutory penalties in ${caseItem.title}`
                       }
                     </div>
-                    <div className="text-sm mt-1">
+                    <div className="text-amber-200/70 text-sm">
                       {caseItem.details.idle > 200 
-                        ? `Idle: ${caseItem.details.idle} days`
-                        : `Exposure: ${caseItem.exposure}`
+                        ? `No activity for ${caseItem.details.idle} days`
+                        : `High penalty exposure: ${caseItem.exposure}`
                       }
                     </div>
                   </div>
@@ -219,41 +250,41 @@ export default function JobsLevelDashboard() {
           </div>
         )}
 
-        {/* New Case Form */}
+        {/* Clean New Case Form */}
         {showNewCase && (
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-lg">
-            <h2 className="text-xl font-semibold mb-6">Add New Case</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="bg-slate-800/60 backdrop-blur-lg border border-slate-700/40 rounded-2xl p-8 shadow-sm">
+            <h2 className="text-2xl font-light text-white mb-8">Add New Case</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <input
                 type="text"
                 placeholder="Case Name"
-                className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:border-gradientFrom focus:outline-none transition-colors"
+                className="bg-slate-700/50 border border-slate-600/30 rounded-xl px-4 py-3 text-white placeholder:text-slate-400 focus:border-blue-400/50 focus:outline-none transition-colors"
               />
               <input
                 type="text"
                 placeholder="Case Number"
-                className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:border-gradientFrom focus:outline-none transition-colors"
+                className="bg-slate-700/50 border border-slate-600/30 rounded-xl px-4 py-3 text-white placeholder:text-slate-400 focus:border-blue-400/50 focus:outline-none transition-colors"
               />
               <input
                 type="text"
                 placeholder="Client"
-                className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:border-gradientFrom focus:outline-none transition-colors"
+                className="bg-slate-700/50 border border-slate-600/30 rounded-xl px-4 py-3 text-white placeholder:text-slate-400 focus:border-blue-400/50 focus:outline-none transition-colors"
               />
-              <select className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:border-gradientFrom focus:outline-none transition-colors">
-                <option className="bg-background text-white" value="">Case Type</option>
-                <option className="bg-background text-white" value="pra">Public Records Act</option>
-                <option className="bg-background text-white" value="appeal">Administrative Appeal</option>
-                <option className="bg-background text-white" value="federal">Federal Appeal</option>
-                <option className="bg-background text-white" value="other">Other</option>
+              <select className="bg-slate-700/50 border border-slate-600/30 rounded-xl px-4 py-3 text-white focus:border-blue-400/50 focus:outline-none transition-colors">
+                <option className="bg-slate-800 text-white" value="">Case Type</option>
+                <option className="bg-slate-800 text-white" value="pra">Public Records Act</option>
+                <option className="bg-slate-800 text-white" value="appeal">Administrative Appeal</option>
+                <option className="bg-slate-800 text-white" value="federal">Federal Appeal</option>
+                <option className="bg-slate-800 text-white" value="other">Other</option>
               </select>
             </div>
             <div className="flex gap-4">
-              <button className="bg-success hover:bg-success/90 px-6 py-3 rounded-xl font-semibold text-background transition-colors">
+              <button className="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-xl font-medium text-white shadow-md hover:shadow-lg transition-all">
                 Create Case
               </button>
               <button 
                 onClick={() => setShowNewCase(false)}
-                className="bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl font-semibold text-white transition-colors"
+                className="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded-xl font-medium text-slate-200 shadow-md hover:shadow-lg transition-all"
               >
                 Cancel
               </button>
@@ -261,8 +292,8 @@ export default function JobsLevelDashboard() {
           </div>
         )}
 
-        {/* Case Grid - Wallet Style */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Refined Case Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {cases.map((caseItem) => (
             <CaseCard
               key={caseItem.id}
@@ -273,21 +304,6 @@ export default function JobsLevelDashboard() {
             />
           ))}
         </div>
-
-        {/* Empty State */}
-        {cases.length === 0 && (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-6">⚖️</div>
-            <h2 className="text-3xl font-bold mb-4">No cases yet</h2>
-            <p className="text-textSecondary mb-8 text-lg">Add your first case to get started</p>
-            <button 
-              onClick={() => setShowNewCase(true)}
-              className="bg-gradientFrom hover:bg-gradientFrom/90 px-8 py-4 rounded-2xl text-xl font-semibold transition-colors"
-            >
-              Create First Case
-            </button>
-          </div>
-        )}
       </div>
 
       <style jsx>{`
