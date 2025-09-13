@@ -2,6 +2,11 @@
 
 import { useState } from 'react';
 
+interface TelemetryMetricProps {
+  label: string;
+  value: string | number;
+}
+
 export default function FolderaCockpit() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -128,7 +133,7 @@ export default function FolderaCockpit() {
   );
 }
 
-const TelemetryMetric = ({ label, value }: { label: string; value: any }) => (
+const TelemetryMetric = ({ label, value }: TelemetryMetricProps) => (
   <div className="flex items-center gap-2">
     <span className="text-slate-500 font-light text-xs">{label}:</span>
     <span className="text-white font-medium">{value}</span>
