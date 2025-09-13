@@ -1,5 +1,5 @@
-﻿import FolderaCockpit from '../components/FolderaCockpit';
+﻿import ExecutiveBriefing from '../components/ExecutiveBriefing';
 
 export default function Home() {
-  return <FolderaCockpit />;
+  return <ExecutiveBriefing />;
 }
