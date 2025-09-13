@@ -1,4 +1,4 @@
-﻿import FolderaCockpit from '@/components/FolderaCockpit';
+﻿import FolderaCockpit from '../components/FolderaCockpit';
 
 export default function Home() {
   return <FolderaCockpit />;
