@@ -16,7 +16,7 @@ interface Case {
   };
 }
 
-function StatCard({ label, value, icon: Icon }: { label: string; value: string; icon: any }) {
+function StatCard({ label, value, icon: Icon }: { label: string; value: string; icon: React.ComponentType<{ className?: string }> }) {
   return (
     <div className="rounded-2xl bg-slate-800/60 backdrop-blur-lg border border-slate-700/40 p-8 shadow-sm hover:shadow-md hover:border-slate-600/50 transition-all duration-300">
       <div className="flex items-center justify-between mb-4">
