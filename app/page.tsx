@@ -1,315 +1,259 @@
 ﻿'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { HeroHeader } from '../components/HeroHeader';
-import { PriorityBanner } from '../components/PriorityBanner';
-import { CaseCard } from '../components/CaseCard';
-
-interface Violation {
-  date: string;
-  type: string;
-  description: string;
-  penalty: number;
-  source: string;
-}
-
-interface CaseFile {
-  name: string;
-  type: string;
-  size: number;
-  uploadDate: string;
-  processed: boolean;
-  insights: Array<{ type: string; content: string; confidence: number; }>;
-}
 
 interface Case {
   id: number;
-  name: string;
-  client: string;
-  caseNumber: string;
-  type: string;
-  status: string;
-  created: string;
-  files: CaseFile[];
-  violations: Violation[];
-  lastActivity: string;
-  totalPenalty: number;
-  daysActive: number;
+  title: string;
+  exposure: string;
+  details: {
+    number: string;
+    date: string;
+    files: number;
+    violations: number;
+    idle: number;
+  };
 }
 
-interface Briefing {
-  date: string;
-  activeCases: number;
-  totalPenalties: number;
-  recentActivity: number;
-  urgentItems: Array<{
-    type: string;
-    case: string;
-    description: string;
-    action: string;
-  }>;
-  suggestion: string;
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center">
+      <p className="text-3xl font-bold text-white">{value}</p>
+      <p className="text-sm text-white/70 mt-1">{label}</p>
+    </div>
+  );
 }
 
-export default function LockedDashboard() {
-  const [cases, setCases] = useState<Case[]>([]);
-  const [briefing, setBriefing] = useState<Briefing | null>(null);
-  const [showNewCase, setShowNewCase] = useState(false);
-  const [newCase, setNewCase] = useState({ name: '', client: '', caseNumber: '', type: '' });
-
-  // Generate daily briefing with useCallback to avoid dependency issues
-  const generateDailyBriefing = useCallback(() => {
-    const today = new Date();
-    const activeCases = cases.filter(c => c.status === 'active');
-    const recentActivity = cases.filter(c => {
-      const lastActivity = new Date(c.lastActivity);
-      const daysDiff = (today.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24);
-      return daysDiff <= 7;
-    });
-
-    const urgentItems: Array<{
-      type: string;
-      case: string;
-      description: string;
-      action: string;
-    }> = [];
-    
-    // Check for cases with no recent activity
-    cases.forEach(c => {
-      const daysSinceActivity = Math.floor((today.getTime() - new Date(c.lastActivity).getTime()) / (1000 * 60 * 60 * 24));
-      if (daysSinceActivity > 180 && c.status === 'active') {
-        urgentItems.push({
-          type: 'stale',
-          case: c.name,
-          description: `No activity for ${daysSinceActivity} days`,
-          action: `Review ${c.name} case files and schedule follow-up`
-        });
-      }
-    });
-
-    // Check for high penalty cases
-    cases.forEach(c => {
-      if (c.totalPenalty > 5000) {
-        urgentItems.push({
-          type: 'high-penalty',
-          case: c.name,
-          description: `High penalty exposure: $${c.totalPenalty.toLocaleString()}`,
-          action: `Draft motion for statutory penalties in ${c.name}`
-        });
-      }
-    });
-
-    setBriefing({
-      date: today.toLocaleDateString(),
-      activeCases: activeCases.length,
-      totalPenalties: cases.reduce((sum, c) => sum + c.totalPenalty, 0),
-      recentActivity: recentActivity.length,
-      urgentItems,
-      suggestion: urgentItems.length > 0 ? urgentItems[0].action : "All cases up to date - consider proactive outreach"
-    });
-  }, [cases]);
-
-  // Load cases from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('realLegalCases');
-    if (saved) {
-      setCases(JSON.parse(saved));
-    } else {
-      const actualCases: Case[] = [
-        {
-          id: 1,
-          name: "King County PRA",
-          client: "Kapp Legal",
-          caseNumber: "25-2-25387-2 SEA",
-          type: "Public Records Act",
-          status: "active",
-          created: "2025-01-15",
-          files: [],
-          violations: [
-            { date: "2025-01-20", type: "Delay", description: "Response overdue by 15 days", penalty: 1500, source: "Email chain analysis" },
-            { date: "2025-01-25", type: "Constructive Denial", description: "Claimed no records exist", penalty: 5000, source: "Agency response letter" }
-          ],
-          lastActivity: "2024-06-15", // Made this older to show idle state
-          totalPenalty: 6500,
-          daysActive: 10
-        },
-        {
-          id: 2,
-          name: "Yakima PRA",
-          client: "Kapp Legal",
-          caseNumber: "25-2-02050-39",
-          type: "Public Records Act",
-          status: "active", 
-          created: "2025-02-01",
-          files: [],
-          violations: [
-            { date: "2025-02-10", type: "Privilege Log Missing", description: "No privilege log provided with redactions", penalty: 2500, source: "Document review" }
-          ],
-          lastActivity: "2025-09-10",
-          totalPenalty: 2500,
-          daysActive: 8
-        },
-        {
-          id: 3,
-          name: "Kittitas County ALR ESD Appeal",
-          client: "Kapp Legal",
-          caseNumber: "25-2-00320-19",
-          type: "Administrative Appeal",
-          status: "active",
-          created: "2025-01-20",
-          files: [],
-          violations: [],
-          lastActivity: "2025-09-01",
-          totalPenalty: 0,
-          daysActive: 5
-        },
-        {
-          id: 4,
-          name: "9th Circuit Appeal",
-          client: "Kapp Legal", 
-          caseNumber: "25-3764",
-          type: "Federal Appeal",
-          status: "active",
-          created: "2025-01-10",
-          files: [],
-          violations: [],
-          lastActivity: "2025-09-05",
-          totalPenalty: 0,
-          daysActive: 15
-        }
-      ];
-      setCases(actualCases);
-      localStorage.setItem('realLegalCases', JSON.stringify(actualCases));
-    }
-  }, []);
-
-  // Generate daily briefing when cases change
-  useEffect(() => {
-    if (cases.length > 0) {
-      generateDailyBriefing();
-    }
-  }, [cases, generateDailyBriefing]);
-
-  // Save cases when they change
-  useEffect(() => {
-    if (cases.length > 0) {
-      localStorage.setItem('realLegalCases', JSON.stringify(cases));
-    }
-  }, [cases]);
-
-  const addCase = () => {
-    if (!newCase.name || !newCase.caseNumber) return;
-    
-    const caseToAdd: Case = {
-      id: Date.now(),
-      ...newCase,
-      status: 'active',
-      created: new Date().toISOString().split('T')[0],
-      files: [],
-      violations: [],
-      lastActivity: new Date().toISOString(),
-      totalPenalty: 0,
-      daysActive: 0
-    };
-    
-    setCases([...cases, caseToAdd]);
-    setNewCase({ name: '', client: '', caseNumber: '', type: '' });
-    setShowNewCase(false);
-  };
-
-  // Calculate case details for display
-  const getCaseDisplayData = (caseItem: Case) => {
-    const daysSinceActivity = Math.floor((new Date().getTime() - new Date(caseItem.lastActivity).getTime()) / (1000 * 60 * 60 * 24));
-    
-    return {
-      title: caseItem.name,
-      exposure: `$${caseItem.totalPenalty.toLocaleString()}`,
-      details: {
-        caseNumber: caseItem.caseNumber,
-        created: caseItem.created,
-        files: caseItem.files.length,
-        violations: caseItem.violations.length,
-        daysIdle: daysSinceActivity
-      }
-    };
-  };
-
-  // LOCKED STATS
-  const stats = briefing ? {
-    activeCases: briefing.activeCases,
-    exposure: `$${briefing.totalPenalties.toLocaleString()}`,
-    actionItems: briefing.urgentItems.length,
-    recentActivity: briefing.recentActivity
-  } : {
-    activeCases: 0,
-    exposure: "$0",
-    actionItems: 0,
-    recentActivity: 0
-  };
+function CaseCard({ title, exposure, details, onClick }: { 
+  title: string; 
+  exposure: string; 
+  details: Case['details']; 
+  onClick: () => void; 
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const isIdle = details.idle > 200;
 
   return (
-    <div className="min-h-screen bg-background text-textPrimary">
-      <div className="max-w-6xl mx-auto p-8 space-y-sectionGap">
-        {/* HERO - LOCKED */}
-        <HeroHeader 
-          stats={stats}
-          onNewCase={() => setShowNewCase(true)}
-        />
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+      className={`
+        relative bg-white/5 backdrop-blur-md border 
+        ${isIdle 
+          ? 'border-warning/50 shadow-lg shadow-warning/20' 
+          : 'border-white/10 hover:border-gradientFrom'
+        }
+        rounded-2xl p-6 shadow-lg transition-all duration-300 cursor-pointer
+        hover:transform hover:scale-[1.02] hover:shadow-xl hover:shadow-gradientFrom/20
+      `}
+    >
+      {/* Default View - Clean */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-white">{title}</h2>
+          <div className="w-3 h-3 rounded-full bg-success shadow-lg shadow-success/50" />
+        </div>
+        
+        <p className="text-3xl font-bold bg-gradient-to-r from-gradientFrom to-gradientTo text-transparent bg-clip-text">
+          {exposure}
+        </p>
+      </div>
 
-        {/* PRIORITY BANNER - LOCKED */}
-        {briefing && (
-          <PriorityBanner urgentItems={briefing.urgentItems} />
+      {/* Expanded Details - Smooth Reveal */}
+      {expanded && (
+        <div className="mt-6 pt-4 border-t border-white/10 space-y-2 animate-in fade-in duration-300">
+          <p className="text-textSecondary text-sm">#{details.number}</p>
+          <div className="grid grid-cols-2 gap-2 text-textSecondary text-sm">
+            <span>Filed: {details.date}</span>
+            <span>Files: {details.files}</span>
+            <span>Violations: {details.violations}</span>
+            <span className={details.idle > 200 ? 'text-warning font-medium' : ''}>
+              Idle: {details.idle}d
+            </span>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="flex gap-2 pt-3">
+            <button 
+              className="px-3 py-1 bg-gradientFrom hover:bg-gradientFrom/90 rounded-full text-sm font-medium text-white transition-all duration-200 hover:scale-105"
+              onClick={(e) => { e.stopPropagation(); }}
+            >
+              📅 Follow up
+            </button>
+            <button 
+              className="px-3 py-1 bg-action hover:bg-action/90 rounded-full text-sm font-medium text-background transition-all duration-200 hover:scale-105"
+              onClick={(e) => { e.stopPropagation(); }}
+            >
+              📂 Upload
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function JobsLevelDashboard() {
+  const [expandedPriority, setExpandedPriority] = useState(false);
+  const [showNewCase, setShowNewCase] = useState(false);
+
+  const cases: Case[] = [
+    {
+      id: 1,
+      title: "King County PRA",
+      exposure: "$6,500",
+      details: {
+        number: "25-2-25387-2 SEA",
+        date: "2025-01-15",
+        files: 0,
+        violations: 2,
+        idle: 455,
+      },
+    },
+    {
+      id: 2,
+      title: "Yakima PRA",
+      exposure: "$2,500",
+      details: {
+        number: "25-2-02050-39",
+        date: "2025-02-01",
+        files: 0,
+        violations: 1,
+        idle: 215,
+      },
+    },
+    {
+      id: 3,
+      title: "Kittitas County ALR ESD Appeal",
+      exposure: "$0",
+      details: {
+        number: "25-2-00320-19",
+        date: "2025-01-20",
+        files: 0,
+        violations: 0,
+        idle: 236,
+      },
+    },
+    {
+      id: 4,
+      title: "9th Circuit Appeal",
+      exposure: "$0",
+      details: {
+        number: "25-3764",
+        date: "2025-01-10",
+        files: 0,
+        violations: 0,
+        idle: 246,
+      },
+    },
+  ];
+
+  const urgentCases = cases.filter(c => c.details.idle > 200 || parseInt(c.exposure.replace(/[$,]/g, '')) > 5000);
+
+  return (
+    <div className="min-h-screen bg-background text-white">
+      {/* Hero Header - Gradient Strip */}
+      <div className="bg-gradient-to-r from-gradientFrom to-gradientTo">
+        <div className="max-w-7xl mx-auto p-8">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-4xl font-bold text-white">Good Morning Brandon 👋</h1>
+            <button 
+              onClick={() => setShowNewCase(true)}
+              className="bg-action hover:bg-action/90 text-background font-semibold px-6 py-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105"
+            >
+              + New Case
+            </button>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <StatCard label="Active Cases" value="4" />
+            <StatCard label="Exposure" value="$9,000" />
+            <StatCard label="Action Items" value={urgentCases.length.toString()} />
+            <StatCard label="Recent Activity" value="1" />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-8 space-y-8">
+        {/* Priority Banner - Collapsible */}
+        {urgentCases.length > 0 && (
+          <div 
+            className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-lg cursor-pointer transition-all duration-300 hover:bg-white/10"
+            onClick={() => setExpandedPriority(!expandedPriority)}
+          >
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-warning flex items-center">
+                🔥 {urgentCases.length} Cases Need Attention
+              </h2>
+              <span 
+                className="text-textSecondary transition-transform duration-300"
+                style={{ transform: expandedPriority ? 'rotate(90deg)' : 'rotate(0deg)' }}
+              >
+                ▶
+              </span>
+            </div>
+            
+            {expandedPriority && (
+              <div className="mt-4 space-y-3 animate-in fade-in duration-300">
+                {urgentCases.map((caseItem, i) => (
+                  <div key={i} className="text-textSecondary">
+                    <div className="font-medium text-white">
+                      {caseItem.details.idle > 200 
+                        ? `Review ${caseItem.title} case files and schedule follow-up` 
+                        : `Draft motion for statutory penalties in ${caseItem.title}`
+                      }
+                    </div>
+                    <div className="text-sm mt-1">
+                      {caseItem.details.idle > 200 
+                        ? `Idle: ${caseItem.details.idle} days`
+                        : `Exposure: ${caseItem.exposure}`
+                      }
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
-        {/* NEW CASE FORM */}
+        {/* New Case Form */}
         {showNewCase && (
-          <div className="bg-background border border-textSecondary/20 rounded-card p-6 shadow-card">
-            <h2 className="text-h2 text-textPrimary font-semibold mb-4">Add New Case</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-lg">
+            <h2 className="text-xl font-semibold mb-6">Add New Case</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <input
                 type="text"
                 placeholder="Case Name"
-                value={newCase.name}
-                onChange={(e) => setNewCase({...newCase, name: e.target.value})}
-                className="bg-textSecondary/10 border border-textSecondary/20 rounded-card px-4 py-3 text-textPrimary focus:border-gradientFrom focus:outline-none transition-colors"
+                className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:border-gradientFrom focus:outline-none transition-colors"
               />
               <input
                 type="text"
                 placeholder="Case Number"
-                value={newCase.caseNumber}
-                onChange={(e) => setNewCase({...newCase, caseNumber: e.target.value})}
-                className="bg-textSecondary/10 border border-textSecondary/20 rounded-card px-4 py-3 text-textPrimary focus:border-gradientFrom focus:outline-none transition-colors"
+                className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:border-gradientFrom focus:outline-none transition-colors"
               />
               <input
                 type="text"
                 placeholder="Client"
-                value={newCase.client}
-                onChange={(e) => setNewCase({...newCase, client: e.target.value})}
-                className="bg-textSecondary/10 border border-textSecondary/20 rounded-card px-4 py-3 text-textPrimary focus:border-gradientFrom focus:outline-none transition-colors"
+                className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:border-gradientFrom focus:outline-none transition-colors"
               />
-              <select
-                value={newCase.type}
-                onChange={(e) => setNewCase({...newCase, type: e.target.value})}
-                className="bg-textSecondary/10 border border-textSecondary/20 rounded-card px-4 py-3 text-textPrimary focus:border-gradientFrom focus:outline-none transition-colors"
-              >
-                <option value="">Case Type</option>
-                <option value="Public Records Act">Public Records Act</option>
-                <option value="Administrative Appeal">Administrative Appeal</option>
-                <option value="Federal Appeal">Federal Appeal</option>
-                <option value="Employment">Employment</option>
-                <option value="Other">Other</option>
+              <select className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:border-gradientFrom focus:outline-none transition-colors">
+                <option className="bg-background text-white" value="">Case Type</option>
+                <option className="bg-background text-white" value="pra">Public Records Act</option>
+                <option className="bg-background text-white" value="appeal">Administrative Appeal</option>
+                <option className="bg-background text-white" value="federal">Federal Appeal</option>
+                <option className="bg-background text-white" value="other">Other</option>
               </select>
             </div>
             <div className="flex gap-4">
-              <button
-                onClick={addCase}
-                className="bg-success hover:bg-success/90 px-6 py-3 rounded-card text-background font-semibold transition-colors"
-              >
+              <button className="bg-success hover:bg-success/90 px-6 py-3 rounded-xl font-semibold text-background transition-colors">
                 Create Case
               </button>
-              <button
+              <button 
                 onClick={() => setShowNewCase(false)}
-                className="bg-textSecondary/20 hover:bg-textSecondary/30 px-6 py-3 rounded-card text-textPrimary transition-colors"
+                className="bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl font-semibold text-white transition-colors"
               >
                 Cancel
               </button>
@@ -317,37 +261,44 @@ export default function LockedDashboard() {
           </div>
         )}
 
-        {/* CASE GRID - LOCKED */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-cardGap">
-          {cases.map((caseItem) => {
-            const displayData = getCaseDisplayData(caseItem);
-            return (
-              <CaseCard
-                key={caseItem.id}
-                title={displayData.title}
-                exposure={displayData.exposure}
-                details={displayData.details}
-                onClick={() => console.log('Navigate to case:', caseItem.name)}
-              />
-            );
-          })}
+        {/* Case Grid - Wallet Style */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {cases.map((caseItem) => (
+            <CaseCard
+              key={caseItem.id}
+              title={caseItem.title}
+              exposure={caseItem.exposure}
+              details={caseItem.details}
+              onClick={() => console.log('Navigate to case:', caseItem.title)}
+            />
+          ))}
         </div>
 
-        {/* EMPTY STATE - LOCKED */}
-        {cases.length === 0 && !showNewCase && (
+        {/* Empty State */}
+        {cases.length === 0 && (
           <div className="text-center py-20">
-            <div className="text-6xl mb-4">⚖️</div>
-            <h2 className="text-display text-textPrimary mb-4">No cases yet</h2>
-            <p className="text-textSecondary mb-8">Add your first case to get started</p>
-            <button
+            <div className="text-6xl mb-6">⚖️</div>
+            <h2 className="text-3xl font-bold mb-4">No cases yet</h2>
+            <p className="text-textSecondary mb-8 text-lg">Add your first case to get started</p>
+            <button 
               onClick={() => setShowNewCase(true)}
-              className="bg-gradientFrom hover:bg-gradientFrom/90 px-8 py-4 rounded-card text-h2 text-textPrimary transition-colors"
+              className="bg-gradientFrom hover:bg-gradientFrom/90 px-8 py-4 rounded-2xl text-xl font-semibold transition-colors"
             >
               Create First Case
             </button>
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in {
+          animation: fade-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
