@@ -1,9 +1,26 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { HeroHeader } from '../components/HeroHeader';
 import { PriorityBanner } from '../components/PriorityBanner';
 import { CaseCard } from '../components/CaseCard';
+
+interface Violation {
+  date: string;
+  type: string;
+  description: string;
+  penalty: number;
+  source: string;
+}
+
+interface CaseFile {
+  name: string;
+  type: string;
+  size: number;
+  uploadDate: string;
+  processed: boolean;
+  insights: Array<{ type: string; content: string; confidence: number; }>;
+}
 
 interface Case {
   id: number;
@@ -13,8 +30,8 @@ interface Case {
   type: string;
   status: string;
   created: string;
-  files: any[];
-  violations: any[];
+  files: CaseFile[];
+  violations: Violation[];
   lastActivity: string;
   totalPenalty: number;
   daysActive: number;
@@ -39,6 +56,58 @@ export default function LockedDashboard() {
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [showNewCase, setShowNewCase] = useState(false);
   const [newCase, setNewCase] = useState({ name: '', client: '', caseNumber: '', type: '' });
+
+  // Generate daily briefing with useCallback to avoid dependency issues
+  const generateDailyBriefing = useCallback(() => {
+    const today = new Date();
+    const activeCases = cases.filter(c => c.status === 'active');
+    const recentActivity = cases.filter(c => {
+      const lastActivity = new Date(c.lastActivity);
+      const daysDiff = (today.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24);
+      return daysDiff <= 7;
+    });
+
+    const urgentItems: Array<{
+      type: string;
+      case: string;
+      description: string;
+      action: string;
+    }> = [];
+    
+    // Check for cases with no recent activity
+    cases.forEach(c => {
+      const daysSinceActivity = Math.floor((today.getTime() - new Date(c.lastActivity).getTime()) / (1000 * 60 * 60 * 24));
+      if (daysSinceActivity > 180 && c.status === 'active') {
+        urgentItems.push({
+          type: 'stale',
+          case: c.name,
+          description: `No activity for ${daysSinceActivity} days`,
+          action: `Review ${c.name} case files and schedule follow-up`
+        });
+      }
+    });
+
+    // Check for high penalty cases
+    cases.forEach(c => {
+      if (c.totalPenalty > 5000) {
+        urgentItems.push({
+          type: 'high-penalty',
+          case: c.name,
+          description: `High penalty exposure: $${c.totalPenalty.toLocaleString()}`,
+          action: `Draft motion for statutory penalties in ${c.name}`
+        });
+      }
+    });
+
+    setBriefing({
+      date: today.toLocaleDateString(),
+      activeCases: activeCases.length,
+      totalPenalties: cases.reduce((sum, c) => sum + c.totalPenalty, 0),
+      recentActivity: recentActivity.length,
+      urgentItems,
+      suggestion: urgentItems.length > 0 ? urgentItems[0].action : "All cases up to date - consider proactive outreach"
+    });
+  }, [cases]);
 
   // Load cases from localStorage
   useEffect(() => {
@@ -114,12 +183,12 @@ export default function LockedDashboard() {
     }
   }, []);
 
-  // Generate daily briefing
+  // Generate daily briefing when cases change
   useEffect(() => {
     if (cases.length > 0) {
       generateDailyBriefing();
     }
-  }, [cases]);
+  }, [cases, generateDailyBriefing]);
 
   // Save cases when they change
   useEffect(() => {
@@ -127,57 +196,6 @@ export default function LockedDashboard() {
       localStorage.setItem('realLegalCases', JSON.stringify(cases));
     }
   }, [cases]);
-
-  const generateDailyBriefing = () => {
-    const today = new Date();
-    const activeCases = cases.filter(c => c.status === 'active');
-    const recentActivity = cases.filter(c => {
-      const lastActivity = new Date(c.lastActivity);
-      const daysDiff = (today.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24);
-      return daysDiff <= 7;
-    });
-
-    const urgentItems: Array<{
-      type: string;
-      case: string;
-      description: string;
-      action: string;
-    }> = [];
-    
-    // Check for cases with no recent activity
-    cases.forEach(c => {
-      const daysSinceActivity = Math.floor((today.getTime() - new Date(c.lastActivity).getTime()) / (1000 * 60 * 60 * 24));
-      if (daysSinceActivity > 180 && c.status === 'active') {
-        urgentItems.push({
-          type: 'stale',
-          case: c.name,
-          description: `No activity for ${daysSinceActivity} days`,
-          action: `Review ${c.name} case files and schedule follow-up`
-        });
-      }
-    });
-
-    // Check for high penalty cases
-    cases.forEach(c => {
-      if (c.totalPenalty > 5000) {
-        urgentItems.push({
-          type: 'high-penalty',
-          case: c.name,
-          description: `High penalty exposure: $${c.totalPenalty.toLocaleString()}`,
-          action: `Draft motion for statutory penalties in ${c.name}`
-        });
-      }
-    });
-
-    setBriefing({
-      date: today.toLocaleDateString(),
-      activeCases: activeCases.length,
-      totalPenalties: cases.reduce((sum, c) => sum + c.totalPenalty, 0),
-      recentActivity: recentActivity.length,
-      urgentItems,
-      suggestion: urgentItems.length > 0 ? urgentItems[0].action : "All cases up to date - consider proactive outreach"
-    });
-  };
 
   const addCase = () => {
     if (!newCase.name || !newCase.caseNumber) return;
